@@ -13,15 +13,6 @@ test("no repite el mismo código mientras sigue a la vista", () => {
   assert.equal(aceptar("A", 4002), true); // otro producto en medio: sí cuenta
 });
 
-test("desfase con la medición más rápida", () => {
-  const r = L.calcularDesfase([
-    { t0: 1000, ts: 5200, t1: 1300 },
-    { t0: 2000, ts: 6010, t1: 2020 }, // la más rápida: desfase = 6010 - 2010
-  ]);
-  assert.deepEqual(r, { desfase: 4000, rtt: 20 });
-  assert.equal(L.calcularDesfase([]), null);
-});
-
 test("espera de reintentos crece y tiene tope", () => {
   assert.deepEqual([0, 1, 2, 3, 10].map(L.esperaReintento), [300, 600, 1200, 2400, 5000]);
 });
@@ -39,13 +30,6 @@ test("resumen de latencias", () => {
   assert.equal(L.resumen([]), null);
 });
 
-test("lee la llave del QR", () => {
-  assert.equal(L.llaveDeHash("#llave=abc_-123"), "abc_-123");
-  assert.equal(L.llaveDeHash("#x=1&llave=zz"), "zz");
-  assert.equal(L.llaveDeHash(""), null);
-  assert.equal(L.llaveDeHash("#llave=<script>"), null);
-});
-
 test("solo acepta cuando dos lecturas seguidas coinciden", () => {
   const confirmar = L.crearConfirmador(2, 600);
   assert.equal(confirmar("7501000664221", 0), false);
@@ -60,4 +44,33 @@ test("dos lecturas muy separadas no cuentan como confirmación", () => {
   assert.equal(confirmar("7501000664221", 0), false);
   assert.equal(confirmar("7501000664221", 2000), false);
   assert.equal(confirmar("7501000664221", 2100), true);
+});
+
+test("normalizarCodigo: igual que en la PC", () => {
+  assert.equal(L.normalizarCodigo("7501055300075", "ean_13"), "7501055300075");
+  assert.equal(L.normalizarCodigo("012345678905", "upc_a"), "0012345678905");
+  assert.equal(L.normalizarCodigo("2548000664222", "ean_13"), null); // dígito no cuadra
+  assert.equal(L.normalizarCodigo("750105530007", "ean_13"), null); // largo equivocado
+  assert.equal(L.normalizarCodigo(" ABC-123 ", "code_128"), "ABC-123");
+  assert.equal(L.normalizarCodigo("", "code_128"), null);
+});
+
+test("lista de ventas: número por día, de la más nueva a la más vieja", () => {
+  const v = (cuando, total, estado) => ({ cuando, total, estado, renglones: [] });
+  const dias = L.ventasPorDia([
+    v("2026-11-21 09:00:00", 500), v("2026-11-20 18:00:00", 900), v("2026-11-21 08:30:00", 300),
+    v("2026-11-21 10:00:00", 700, "cancelada"),
+  ]);
+  assert.deepEqual(dias.map((d) => [d.dia, d.cuantas, d.total]), [["2026-11-21", 2, 800], ["2026-11-20", 1, 900]]);
+  assert.deepEqual(dias[0].ventas.map((x) => [x.numero, x.cuando.slice(11, 16)]), [[3, "10:00"], [2, "09:00"], [1, "08:30"]]);
+});
+
+test("lista de ventas: textos", () => {
+  assert.equal(L.renglonesTexto([{ nombre: "Agua", cantidad: 2 }, { nombre: "Huevo", cantidad: 1500, unidad: "kg" },
+    { nombre: "Frijol", cantidad: 500, unidad: "kg" }]), "2 × Agua · 1½ kg Huevo · ½ kg Frijol");
+  assert.equal(L.hora12("2026-11-21 00:05:00"), "12:05 a.m.");
+  assert.equal(L.hora12("2026-11-21 13:40:00"), "1:40 p.m.");
+  assert.equal(L.diaTexto("2026-11-21", "2026-11-21"), "Hoy");
+  assert.equal(L.diaTexto("2026-11-20", "2026-11-21"), "Ayer");
+  assert.equal(L.diaTexto("2026-11-19", "2026-11-21"), "Jueves 19 de noviembre");
 });

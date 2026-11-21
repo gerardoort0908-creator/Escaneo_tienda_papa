@@ -82,7 +82,7 @@
         <ol class="sub">
           <li>El celular debe estar en el mismo WiFi que esta computadora.</li>
           <li>Abre la cámara del celular y apunta a este código.</li>
-          <li>Toca <b>Empezar a escanear</b> y permite la cámara.</li>
+          <li>Agrégala a la <b>pantalla de inicio</b> del celular (ahí te dice cómo). Así funciona aunque esta computadora esté apagada.</li>
         </ol>
         <p class="sub" id="sin-wifi" hidden>Esta computadora no parece estar en un WiFi.</p>
         <button class="act soft" id="conectar-cerrar">Listo</button>
@@ -402,6 +402,11 @@
     ws.onopen = () => { intento = 0; };
     ws.onmessage = (m) => {
       const d = JSON.parse(m.data);
+      if (d.tipo === "ventas-celular") {
+        aviso((d.nuevas === 1 ? "Llegó 1 venta del celular" : "Llegaron " + d.nuevas + " ventas del celular") + " (" + V.pesos(d.total) + ")");
+        if (config.alLlegarVentas) config.alLlegarVentas();
+        return;
+      }
       if (d.tipo !== "escaneo") return;
       if (capaAbierta() === "alta") return; // está llenando un producto nuevo; no lo interrumpimos
       if (capaAbierta()) cerrarCapa(capaAbierta());

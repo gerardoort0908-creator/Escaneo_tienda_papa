@@ -52,6 +52,18 @@ def test_reporte_de_hoy(compu, dia_con_ventas, surtido):
     assert d["prestamos"] == {"deben": 2500, "personas": 1, "deudores": [{"nombre": "Lupe", "saldo": 2500}]}
 
 
+def test_cada_venta_con_lo_que_se_llevo(compu, dia_con_ventas, bd, surtido):
+    origen = [ventas.DelCelular(surtido["coca"], 2, 2200)]
+    ventas.de_celular(bd, "venta-celular-777", "iPhone-ab12", f"{HOY} 00:00:01", origen, 5000)
+    lista = compu.get("/api/reportes", params={"desde": HOY, "hasta": HOY}).json()["lista_ventas"]
+    assert [v["celular"] for v in lista] == ["iPhone-ab12", None, None, None]
+    assert [(v["forma_pago"], v["estado"], v["cliente"]) for v in lista[1:]] == [
+        ("efectivo", "hecha", None), ("fiado", "hecha", "Lupe"), ("efectivo", "cancelada", None)]
+    assert lista[3]["motivo"] == "prueba"
+    assert lista[1]["renglones"] == [{"nombre": "Coca-Cola 600 ml", "unidad": "pieza", "cantidad": 3, "subtotal": 6600}]
+    assert lista[2]["renglones"][0]["unidad"] == "kg" and lista[2]["renglones"][0]["cantidad"] == 1000
+
+
 def test_varios_dias_trae_cada_dia_aunque_no_haya_ventas(compu, dia_con_ventas):
     desde = (date.today() - timedelta(days=6)).isoformat()
     d = compu.get("/api/reportes", params={"desde": desde, "hasta": HOY}).json()

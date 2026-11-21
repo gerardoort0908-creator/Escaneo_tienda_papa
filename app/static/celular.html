@@ -3,62 +3,101 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#141311">
-<title>Escáner</title>
-<link rel="stylesheet" href="/static/estilos.css">
-<style>
-  body { display: flex; flex-direction: column; min-height: 100dvh; padding: env(safe-area-inset-top) 16px calc(16px + env(safe-area-inset-bottom)); }
-  header { padding: 18px 4px 12px; display: flex; justify-content: space-between; align-items: center; }
-  .punto { width: 10px; height: 10px; border-radius: 50%; background: var(--suave); display: inline-block; margin-right: 8px; }
-  .punto.ok { background: var(--bien); }
-  .punto.mal { background: var(--mal); }
-  #visor { position: relative; flex: 1; min-height: 50dvh; border-radius: 24px; overflow: hidden; background: #000; border: 1px solid var(--borde); }
-  video { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .franja { position: absolute; left: 8%; right: 8%; top: 50%; height: 30%; transform: translateY(-50%);
-            border: 2px solid rgba(214,171,85,.9); border-radius: 14px; box-shadow: 0 0 0 100vmax rgba(0,0,0,.35); }
-  .linea { position: absolute; left: 6%; right: 6%; top: 50%; height: 2px; background: var(--oro); opacity: .8; }
-  #destello { position: absolute; inset: 0; background: var(--bien); opacity: 0; transition: opacity .25s; pointer-events: none; }
-  #destello.si { opacity: .45; transition: none; }
-  #destello.mal { background: var(--mal); }
-  #inicio { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; background: var(--capa); }
-  #inicio svg { width: 120px; margin: 0 auto 18px; display: block; }
-  #ultimo { margin-top: 14px; padding: 16px 18px; min-height: 84px; }
-  #ultimo .codigo { font-size: 1.6rem; font-weight: 600; letter-spacing: .02em; }
-  #ultimo .estado { font-size: .95rem; }
-  .oculto { display: none !important; }
-</style>
+<meta name="theme-color" content="#0A0A0B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tienda">
+<link rel="apple-touch-icon" href="/static/celular-icono.png">
+<link id="manifiesto" rel="manifest" href="/celular.webmanifest">
+<link rel="stylesheet" href="/static/celular.css">
+<title>Tienda</title>
 </head>
 <body>
-<header>
-  <h1 style="font-size:1.2rem">Escáner</h1>
-  <span class="suave" style="font-size:.9rem"><span id="punto" class="punto"></span><span id="conexion">Sin conectar</span></span>
-</header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-buscar" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="i-escanear" viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M8 9v6M11 9v6M14 9v6M17 9v6"/></symbol>
+  <symbol id="i-mas" viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></symbol>
+  <symbol id="i-menos" viewBox="0 0 24 24"><path d="M6 12h12"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+</svg>
 
-<div id="visor">
-  <video id="video" playsinline muted></video>
-  <div class="franja"></div><div class="linea"></div>
-  <div id="destello"></div>
-  <div id="inicio">
-    <div>
-      <svg viewBox="0 0 120 80" aria-hidden="true">
-        <rect x="2" y="2" width="116" height="76" rx="10" fill="none" stroke="#d6ab55" stroke-width="3"/>
-        <g fill="#f3eee4"><rect x="20" y="16" width="4" height="48"/><rect x="28" y="16" width="2" height="48"/><rect x="34" y="16" width="6" height="48"/><rect x="44" y="16" width="2" height="48"/><rect x="50" y="16" width="4" height="48"/><rect x="58" y="16" width="2" height="48"/><rect x="64" y="16" width="6" height="48"/><rect x="74" y="16" width="2" height="48"/><rect x="80" y="16" width="4" height="48"/><rect x="88" y="16" width="2" height="48"/><rect x="94" y="16" width="6" height="48"/></g>
-        <rect x="8" y="39" width="104" height="2" fill="#d6ab55"/>
-      </svg>
-      <p style="margin:0 0 20px">Pon el código de barras dentro del recuadro dorado.</p>
-      <button id="empezar" class="boton">Empezar a escanear</button>
-      <p id="problema" class="aviso mal oculto" style="margin-top:18px;text-align:left"></p>
+<div class="arriba">
+  <div class="marca">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="marca" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4DDA6"/><stop offset="1" stop-color="#B8924A"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#marca)"/><path d="M7 13h18l-2-5H9z" fill="#2A1E08"/><path d="M7 13c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3" fill="none" stroke="#2A1E08" stroke-width="1.4" opacity=".85"/><path d="M9 17v7h14v-7M14 24v-4h4v4" fill="none" stroke="#2A1E08" stroke-width="1.6" stroke-linejoin="round" opacity=".85"/></svg>
+    <b>Tu tienda</b>
+    <div id="estado" class="estado" role="status"><i></i><span id="estado-tx">Buscando la PC…</span></div>
+  </div>
+  <p id="estado-sub" class="estado-sub"></p>
+  <div class="pestanas" role="tablist" aria-label="Sección">
+    <button id="p-vender" role="tab" aria-selected="true">Vender</button><button id="p-ventas" role="tab" aria-selected="false">Ventas</button>
+  </div>
+  <label class="buscar" id="buscar-caja">
+    <svg class="ic"><use href="#i-buscar"/></svg>
+    <input id="buscar" type="search" placeholder="Buscar producto" autocomplete="off" enterkeyhint="search" aria-label="Buscar producto">
+  </label>
+</div>
+
+<div id="sin-llave" class="aviso oculto"><svg class="ic"><use href="#i-info"/></svg><div><b>Falta conectar este celular.</b> En la PC toca <b>Conectar celular</b> y escanea el código.</div></div>
+<div id="sin-guardar" class="aviso oculto"><svg class="ic"><use href="#i-info"/></svg><div><b>Todavía no funciona sin la PC.</b> Primero instala el sello de la tienda: <a id="liga-sello" href="#">ver cómo</a>.</div></div>
+<div id="instalar" class="aviso oculto"><svg class="ic"><use href="#i-info"/></svg><div><b>Agrégala a tu pantalla de inicio</b> para abrirla como app: <span id="instalar-tx"></span></div>
+  <button class="cerrar" id="instalar-cerrar" aria-label="Cerrar"><svg class="ic"><use href="#i-x"/></svg></button></div>
+
+<section id="sec-vender">
+  <h2>Productos</h2>
+  <div id="lista" class="lista"><div class="vacio">Cargando productos…</div></div>
+</section>
+
+<section id="sec-ventas" class="oculto">
+  <h2>Ventas de este celular <span id="hist-cuenta"></span></h2>
+  <div id="hist" class="hist"><div class="lista"><div class="vacio">Aún no hay ventas.</div></div></div>
+</section>
+
+<div class="pie">
+  <div class="cuenta">
+    <div><small id="articulos">Agrega productos</small><span class="total" id="total">$0</span></div>
+    <button id="limpiar" class="oculto">Borrar todo</button>
+  </div>
+  <div class="botones">
+    <button id="escanear" class="btn gris"><svg class="ic"><use href="#i-escanear"/></svg>Escanear</button>
+    <button id="cobrar" class="btn verde" disabled>Cobrar</button>
+  </div>
+</div>
+<div id="toast" class="toast" role="status"></div>
+
+<div id="hoja" class="hoja oculto">
+  <div class="caja" role="dialog" aria-label="Cobrar">
+    <div class="asa"></div>
+    <span class="lbl">Total a cobrar</span>
+    <div class="grande" id="h-total">$0</div>
+    <h3>¿Con cuánto paga?</h3>
+    <div class="billetes" id="billetes"></div>
+    <div class="cambio" id="h-cambio">
+      <div><span class="lbl" id="h-recibido">Toca los billetes y monedas</span><button class="borrar oculto" id="h-borrar">Volver a contar</button></div>
+      <div style="text-align:right"><span class="lbl" id="h-cambio-lbl"></span><div class="grande" id="h-cambio-n"></div></div>
     </div>
+    <button class="btn verde ancho" id="h-listo" disabled>Guardar venta</button>
+    <button class="texto-btn" id="h-cancelar">Cancelar</button>
   </div>
 </div>
 
-<div id="ultimo" class="aviso">
-  <div class="suave estado" id="estado">Todavía no hay escaneos</div>
-  <div class="codigo cifra" id="codigo"></div>
+<div id="camara" class="camara oculto">
+  <div class="camara-top"><b>Escanear</b><button class="cerrar" id="camara-cerrar" aria-label="Cerrar"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div class="modo oculto" id="modo" role="group" aria-label="Dónde se cobra">
+    <button id="modo-aqui" aria-pressed="true">Cobrar aquí</button><button id="modo-pc" aria-pressed="false">Mandar a la PC</button>
+  </div>
+  <div class="visor"><video id="video" playsinline muted></video><div class="franja" id="franja"></div><div class="destello" id="destello"></div></div>
+  <div class="leido" id="leido"><span class="tile vacia" id="leido-tile"><svg class="ic"><use href="#i-escanear"/></svg></span>
+    <div class="n"><b id="leido-tx">Pon el código dentro del recuadro</b><small id="leido-sub"></small></div></div>
+  <button class="btn verde ancho" id="camara-listo">Listo</button>
 </div>
 
-<script src="/static/vendor/zxing-0.21.3.min.js" defer></script>
-<script src="/static/logica.js" defer></script>
-<script src="/static/celular.js" defer></script>
+<div id="pasaron" class="pasaron oculto"><div><span class="ok"><svg class="ic"><use href="#i-ok"/></svg></span><b id="pasaron-tx"></b><small>Ya cuentan en el inventario, en Reportes y en el Corte de caja.</small></div></div>
+
+<script src="/static/vendor/zxing-0.21.3.min.js"></script>
+<script src="/static/logica.js"></script>
+<script src="/static/lector.js"></script>
+<script src="/static/celular.js"></script>
 </body>
 </html>

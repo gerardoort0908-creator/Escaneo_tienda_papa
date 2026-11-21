@@ -33,6 +33,8 @@
     pintarG1();
     pintarG2();
     pintarListas();
+    mostrar = POR_TANDA;
+    pintarTodas();
   }
 
   // ------------------------------------------------------------ números de arriba
@@ -169,7 +171,7 @@
       if (papel) g.resize(g === g1 ? 380 : 330, 230); else g.resize();
     }
   }
-  window.addEventListener("beforeprint", () => tema(true));
+  window.addEventListener("beforeprint", () => { tema(true); if (datos) { mostrar = Infinity; pintarTodas(); } });
   window.addEventListener("afterprint", () => tema(false));
 
   // ------------------------------------------------------------ listas
@@ -201,7 +203,60 @@
       "Nadie te debe.", 6);
   }
 
+  // ------------------------------------------------------------ cada venta
+
+  const L = window.Logica;
+  const POR_TANDA = 150;
+  let mostrar = POR_TANDA;
+
+  function filaVenta(v) {
+    const f = el("div", "vt" + (v.estado === "cancelada" ? " cancelada" : ""));
+    const num = el("div", "num-v");
+    num.append(el("b", "", "Venta " + v.numero), el("small", "", L.hora12(v.cuando)));
+    const que = el("div", "que");
+    que.append(el("span", "", L.renglonesTexto(v.renglones)));
+    const marcas = el("div", "marcas");
+    if (v.estado === "cancelada") marcas.append(el("span", "m mal", "Cancelada" + (v.motivo ? ": " + v.motivo : "")));
+    if (v.forma_pago === "fiado") marcas.append(el("span", "m debe", "Préstamo" + (v.cliente ? " a " + v.cliente : "")));
+    if (v.celular) marcas.append(el("span", "m", "En el celular"));
+    if (marcas.childNodes.length) que.append(marcas);
+    f.append(num, que, el("span", "v", V.pesos(v.total)));
+    return f;
+  }
+
+  function pintarTodas() {
+    const caja = $("todas-lista");
+    caja.replaceChildren();
+    const dias = L.ventasPorDia(datos.lista_ventas);
+    const n = dias.reduce((s, d) => s + d.cuantas, 0);
+    $("todas-cuenta").textContent = n === 1 ? "1 venta" : n + " ventas";
+    if (!dias.length) { caja.appendChild(el("p", "vacio", "No hubo ventas en este periodo.")); return; }
+    const hoy = R.periodo("hoy", new Date()).desde;
+    let puestas = 0;
+    let faltan = 0;
+    for (const d of dias) {
+      if (puestas >= mostrar) { faltan += d.ventas.length; continue; }
+      if (dias.length > 1) {
+        const cab = el("div", "dia-v");
+        cab.append(el("b", "", L.diaTexto(d.dia, hoy)),
+          el("span", "", (d.cuantas === 1 ? "1 venta" : d.cuantas + " ventas") + " · " + V.pesos(d.total)));
+        caja.appendChild(cab);
+      }
+      for (const v of d.ventas) {
+        if (puestas++ >= mostrar) { faltan++; continue; }
+        caja.appendChild(filaVenta(v));
+      }
+    }
+    if (faltan) {
+      const b = el("button", "boton mas-v", "Ver " + Math.min(faltan, POR_TANDA) + " más (faltan " + faltan + ")");
+      b.onclick = () => { mostrar += POR_TANDA; pintarTodas(); };
+      caja.appendChild(b);
+    }
+  }
+
   // ------------------------------------------------------------ eventos
+
+  $("ir-ventas").onclick = () => $("todas").scrollIntoView({ behavior: "smooth", block: "start" });
 
   $("periodos").addEventListener("click", (e) => {
     const b = e.target.closest("[data-p]");

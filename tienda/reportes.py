@@ -119,3 +119,25 @@ def cortes_entre(bd: BaseDatos, desde: date, hasta: date) -> list[dict]:
             " WHERE cerrado IS NOT NULL AND cerrado >= ? AND cerrado < ? ORDER BY id", (inicio, fin),
         ).fetchall()
     return [dict(f) for f in filas]
+
+
+def lista_de_ventas(bd: BaseDatos, desde: date, hasta: date) -> list[dict]:
+    """Cada venta del periodo con lo que se llevó (también las canceladas), en el orden en que se hicieron."""
+    inicio, fin = _rango(desde, hasta)
+    with bd.lectura() as con:
+        filas = con.execute(
+            "SELECT v.id, v.cuando, v.forma_pago, v.total, v.estado, v.motivo_cancel AS motivo,"
+            " c.nombre AS cliente, vc.celular"
+            " FROM ventas v LEFT JOIN clientes c ON c.id = v.cliente_id"
+            " LEFT JOIN ventas_celular vc ON vc.venta_id = v.id"
+            " WHERE v.cuando >= ? AND v.cuando < ? ORDER BY v.cuando, v.id", (inicio, fin),
+        ).fetchall()
+        renglones: dict[int, list[dict]] = {}
+        for r in con.execute(
+            "SELECT l.venta_id, l.nombre, l.unidad, l.cantidad, l.subtotal FROM venta_lineas l"
+            " JOIN ventas v ON v.id = l.venta_id WHERE v.cuando >= ? AND v.cuando < ? ORDER BY l.id",
+            (inicio, fin),
+        ):
+            renglones.setdefault(r["venta_id"], []).append(
+                {"nombre": r["nombre"], "unidad": r["unidad"], "cantidad": r["cantidad"], "subtotal": r["subtotal"]})
+    return [{**dict(f), "renglones": renglones.get(f["id"], [])} for f in filas]

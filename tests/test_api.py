@@ -28,7 +28,7 @@ def test_inicio_lleva_a_cada_quien_a_su_pagina(compu, celular):
 
 def test_info_y_qr(compu):
     info = compu.get("/api/info").json()
-    assert info["url_celular"] == f"https://192.168.1.50:8443/celular#llave={LLAVE}"
+    assert info["url_celular"] == f"https://192.168.1.50:8443/celular?llave={LLAVE}"
     assert info["en_wifi"]
     qr = compu.get("/api/qr.svg")
     assert qr.headers["content-type"].startswith("image/svg+xml")
