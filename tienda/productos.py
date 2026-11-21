@@ -160,6 +160,22 @@ def editar(
     return obtener(bd, producto_id)
 
 
+def corregir_costo(bd: BaseDatos, producto_id: int, costo: int) -> Producto:
+    """Cuando el costo guardado está mal (por ejemplo, se dio de alta sin costo).
+    Lo normal es que el costo cambie solo con "Llegó mercancía" (costo promedio)."""
+    dinero.validar_centavos(costo, permitir_cero=True)
+    ahora = reloj.texto()
+    with bd.transaccion() as con:
+        actual = _fila(con, producto_id)
+        if costo != actual["costo_promedio"]:
+            con.execute("UPDATE productos SET costo_promedio = ?, actualizado = ? WHERE id = ?",
+                        (costo, ahora, producto_id))
+            _anotar_precio(con, producto_id, actual["precio_venta"], costo, "costo corregido", ahora)
+            _log.info("Costo %d corregido: %s → %s", producto_id, dinero.formatear(actual["costo_promedio"]),
+                      dinero.formatear(costo))
+    return obtener(bd, producto_id)
+
+
 def desactivar(bd: BaseDatos, producto_id: int) -> None:
     """Ya no aparece para vender, pero su historia se queda."""
     _cambiar_activo(bd, producto_id, False)

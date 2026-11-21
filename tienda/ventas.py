@@ -177,3 +177,22 @@ def _fila(con: sqlite3.Connection, venta_id: int) -> sqlite3.Row:
     if fila is None:
         raise NoEncontrado("Esa venta no existe")
     return fila
+
+
+def resumen_entre(bd: BaseDatos, desde: str, hasta: str | None) -> dict:
+    """Cuántas ventas hubo en ese rango de horas, cuánto se vendió y cuánto se ganó (lo usa el corte)."""
+    with bd.lectura() as con:
+        fila = con.execute(
+            "SELECT COUNT(*) AS ventas,"
+            " COALESCE(SUM(total), 0) AS vendido,"
+            " COALESCE(SUM(CASE WHEN forma_pago = 'efectivo' THEN total END), 0) AS efectivo,"
+            " COALESCE(SUM(CASE WHEN forma_pago = 'fiado' THEN total END), 0) AS fiado,"
+            " COALESCE(SUM(total - costo_total), 0) AS ganancia"
+            " FROM ventas WHERE estado = 'hecha' AND cuando >= ? AND (? IS NULL OR cuando < ?)",
+            (desde, hasta, hasta),
+        ).fetchone()
+        canceladas = con.execute(
+            "SELECT COUNT(*) FROM ventas WHERE estado = 'cancelada' AND cuando >= ? AND (? IS NULL OR cuando < ?)",
+            (desde, hasta, hasta),
+        ).fetchone()[0]
+    return {**dict(fila), "canceladas": canceladas}

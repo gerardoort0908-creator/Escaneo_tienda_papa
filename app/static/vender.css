@@ -1,0 +1,109 @@
+/* Vender y cobrar: las cuatro escenas (esperando, vendiendo, cobrando, cambio). */
+
+/* 1. Esperando */
+.s-idle { place-items: center; padding: 8rem 0 10rem; }
+.s-idle .c { display: grid; justify-items: center; gap: 1.4rem; text-align: center; }
+.demo { width: 30rem; height: 17rem; margin-bottom: 1rem; }
+.demo svg { width: 100%; height: 100%; overflow: visible; }
+.scanline { animation: barre 2s ease-in-out infinite; }
+@keyframes barre { 0%, 100% { transform: translateY(-14px); } 50% { transform: translateY(14px); } }
+.dash { animation: guion 1s linear infinite; }
+@keyframes guion { to { stroke-dashoffset: -20; } }
+.or { display: flex; align-items: center; gap: 1.2rem; color: var(--tx3); font-size: 1.2rem; margin-top: 1.6rem; }
+.or::before, .or::after { content: ""; width: 5rem; height: 1px; background: var(--tx3); }
+.search { all: unset; position: relative; cursor: pointer; display: flex; align-items: center; gap: 1.1rem; width: 36rem; padding: 1.3rem 1.6rem; border-radius: 1.6rem; font-size: 1.45rem; color: var(--tx2);
+  background: linear-gradient(180deg, rgba(255, 255, 255, .085), rgba(255, 255, 255, .025)); box-shadow: inset 0 1px 0 var(--rim), inset 0 0 0 1px rgba(255, 255, 255, .05), 0 2rem 4rem -2rem rgba(0, 0, 0, .75); }
+.search:hover { color: var(--tx); }
+.search:focus-visible { outline: 2px solid var(--tx); outline-offset: 3px; }
+.search kbd { margin-left: auto; }
+
+/* 2. Vendiendo: dos paneles */
+.s-sale { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); padding: 7.5rem 4.4rem 9.6rem; gap: 2.4rem; }
+.listbox { padding: 1.4rem; display: flex; flex-direction: column; min-height: 0; }
+.listbox .hd { display: flex; justify-content: space-between; align-items: center; padding: .4rem .8rem 1rem; font-size: 1.3rem; color: var(--tx2); }
+.listbox .hd b { color: var(--tx); font-weight: 600; font-size: 1.5rem; }
+.list { display: grid; gap: .3rem; align-content: start; overflow-y: auto; scrollbar-width: none; min-height: 0; }
+.list::-webkit-scrollbar { display: none; }
+.it { display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto 7.5rem; gap: 1.2rem; align-items: center; padding: .8rem; border-radius: 1.2rem; font-size: 1.5rem; transition: background 1.6s var(--ease); }
+.it.fresh { background: rgba(255, 215, 150, .10); animation: entra .5s var(--ease); transition: none; }
+@keyframes entra { from { opacity: 0; transform: translateY(-1rem) scale(.98); } }
+.it .n { min-width: 0; }
+.it .n b { display: block; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.it .n small { display: block; color: var(--tx2); font-size: 1.1rem; margin-top: .15rem; }
+.it .p { font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; }
+.paybox { padding: 2.4rem; display: flex; flex-direction: column; justify-content: space-between; min-height: 0; }
+.paybox .lbl { font-size: 1.4rem; color: var(--tx2); }
+.paybox .num { font-size: 9.6rem; margin-top: 1rem; text-shadow: var(--tglow); }
+.paybox .count { color: var(--tx2); font-size: 1.3rem; margin-top: 1rem; }
+.more { display: flex; align-items: center; gap: .8rem; justify-content: center; color: var(--tx2); font-size: 1.2rem; margin-top: 1.2rem; }
+.more svg { width: 1.5rem; height: 1.5rem; stroke: currentColor; fill: none; stroke-width: 1.6; }
+
+/* 3. Cobrando */
+.s-pay { padding: 7rem 4.4rem 4.4rem; }
+.pay2 { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, .85fr); gap: 2.4rem; min-height: 0; }
+.pleft { display: flex; flex-direction: column; gap: 1.4rem; justify-content: center; }
+.pleft .sub { margin-top: -.4rem; }
+.mrow { display: flex; gap: .7rem; flex-wrap: wrap; }
+.bill { all: unset; box-sizing: border-box; cursor: pointer; width: 8.2rem; height: 5.6rem; padding: .7rem .9rem; border-radius: 1rem; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; color: #fff;
+  background: repeating-radial-gradient(circle at 85% 35%, rgba(255, 255, 255, .10) 0 1px, transparent 1px 6px), linear-gradient(90deg, transparent 62%, rgba(255, 255, 255, .14) 62% 63%, transparent 63%), radial-gradient(70% 90% at 20% 20%, var(--b1), var(--b2));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), inset 0 0 0 1px rgba(255, 255, 255, .12), 0 2rem 3rem -1.6rem var(--b2), 0 .5rem 1rem -.5rem rgba(0, 0, 0, .6); transition: transform .3s var(--ease); }
+.bill:hover { transform: translateY(-.6rem) rotate(-1.2deg); }
+.bill:active, .coin:active { transform: scale(.94); }
+.bill:focus-visible, .coin:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.bill b { font-family: var(--num); font-weight: 700; font-size: 2.1rem; letter-spacing: -.04em; line-height: 1; }
+.bill small { font-size: .85rem; opacity: .8; letter-spacing: .02em; }
+.coins { gap: 1.4rem; align-items: center; padding-left: .4rem; }
+.coin { all: unset; cursor: pointer; width: 4.6rem; height: 4.6rem; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 1.35rem; color: #3b2a08; transition: transform .2s var(--ease);
+  background: radial-gradient(circle at 35% 30%, #FFF1B8, #E2B84A 45%, #A7791C 75%); box-shadow: 0 0 0 .45rem #C9CDD2, 0 0 0 .55rem #8D9298, inset 0 1px 1px rgba(255, 255, 255, .7), 0 1rem 1.4rem -.4rem rgba(0, 0, 0, .7); }
+.coin:hover { transform: translateY(-.3rem); }
+.coin.plata { width: 3.6rem; height: 3.6rem; font-size: 1.1rem; color: #2a2d31; background: radial-gradient(circle at 35% 30%, #fff, #C9CDD2 50%, #8D9298 85%); box-shadow: inset 0 1px 1px #fff, 0 .8rem 1.2rem -.4rem rgba(0, 0, 0, .7); }
+.amt { display: flex; align-items: center; gap: .8rem; padding: .8rem .8rem .8rem 1.6rem; border-radius: 1.4rem; max-width: 40rem; font-size: 1.4rem; color: var(--tx2); }
+.amt b { color: var(--tx); font-weight: 500; margin-left: .6rem; }
+.amt input { all: unset; flex: 1; min-width: 0; color: var(--tx); font-size: 1.7rem; font-variant-numeric: tabular-nums; }
+.amt button { all: unset; cursor: pointer; padding: .8rem 1.4rem; border-radius: 1rem; background: rgba(255, 255, 255, .12); color: var(--tx); font-weight: 600; font-size: 1.3rem; }
+.amt button:hover { background: rgba(255, 255, 255, .18); }
+.pright { padding: 2.2rem; display: flex; flex-direction: column; gap: 1rem; min-height: 0; }
+.kv2 { display: flex; justify-content: space-between; align-items: baseline; font-size: 1.5rem; color: var(--tx2); }
+.kv2 b { font-family: var(--num); font-weight: 700; letter-spacing: -.04em; font-size: 2.6rem; color: var(--tx); font-variant-numeric: lining-nums tabular-nums; }
+.pieces { display: flex; flex-wrap: wrap; gap: .6rem; min-height: 3rem; align-content: flex-start; }
+.pc { all: unset; cursor: pointer; display: flex; align-items: center; gap: .5rem; padding: .45rem .9rem; border-radius: 99rem; font-size: 1.15rem; background: rgba(255, 255, 255, .08); color: var(--tx); }
+.pc i { font-style: normal; color: var(--tx3); }
+.pc:hover { background: rgba(255, 255, 255, .14); }
+.pc:hover i { color: var(--tx); }
+.pstat { margin-top: auto; border-radius: 1.4rem; padding: 1.2rem 1.4rem; display: flex; justify-content: space-between; align-items: baseline; font-size: 1.4rem; transition: background .4s; }
+.pstat b { font-family: var(--num); font-weight: 700; font-size: 3.4rem; font-variant-numeric: lining-nums tabular-nums; letter-spacing: -.05em; }
+.pstat.falta { background: rgba(242, 180, 92, .12); color: var(--aviso); }
+.pstat.ok { background: color-mix(in srgb, var(--acc) 16%, transparent); color: var(--acc); }
+.alt2 { display: flex; gap: .4rem; justify-content: center; flex-wrap: wrap; }
+.alt2 .chip { white-space: nowrap; }
+
+/* 4. Cambio */
+.s-done { place-items: center; text-align: center; padding: 6rem 0; }
+.s-done .c { display: grid; justify-items: center; gap: 1.1rem; }
+.s-done .lbl { font-size: 1.6rem; color: var(--tx2); }
+.s-done .num { font-size: 15rem; color: #fff; text-shadow: 0 0 6rem rgba(60, 230, 140, .35); }
+.give { display: flex; align-items: center; gap: 1.4rem; padding: 1.3rem 2rem; border-radius: 1.8rem; margin-top: .8rem; flex-wrap: wrap; justify-content: center; max-width: 80vw; }
+.give .lead { font-size: 1.4rem; color: var(--tx2); margin-right: .4rem; }
+.give .mb { width: 8rem; height: 4.4rem; border-radius: .7rem; display: grid; place-items: center; font-family: var(--num); font-weight: 700; font-size: 1.8rem; letter-spacing: -.03em; color: #fff;
+  background: repeating-radial-gradient(circle at 85% 35%, rgba(255, 255, 255, .12) 0 1px, transparent 1px 5px), radial-gradient(70% 90% at 20% 20%, var(--b1), var(--b2)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 1rem 1.6rem -.8rem var(--b2); }
+.give .coin { cursor: default; width: 4.2rem; height: 4.2rem; }
+.give .coin.plata { width: 3.2rem; height: 3.2rem; }
+.give .coin:hover { transform: none; }
+.x { font-size: 1.3rem; color: var(--tx2); margin-left: -.6rem; }
+.check { width: 4rem; height: 4rem; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #7CF0B0, #24B86A); display: grid; place-items: center; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 1rem 2rem -.6rem rgba(47, 210, 122, .8); }
+.app[data-state="done"] .check { animation: ok 1s var(--ease); }
+.check svg { width: 2rem; height: 2rem; stroke: #03200F; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 30; }
+.app[data-state="done"] .check svg { animation: traza .5s .3s var(--ease) forwards; }
+@keyframes traza { to { stroke-dashoffset: 0; } }
+@keyframes ok { 0% { transform: scale(.4); opacity: 0; } 45% { transform: scale(1.08); opacity: 1; } 100% { transform: none; } }
+.d-acciones { display: grid; justify-items: center; margin-top: 1.2rem; }
+.next { all: unset; cursor: pointer; display: flex; align-items: center; gap: 1rem; padding: 1.2rem 2.8rem; border-radius: 99rem; font-size: 1.5rem; font-weight: 600; background: rgba(255, 255, 255, .12); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 1rem 2rem -1rem rgba(0, 0, 0, .6); }
+.next:hover { background: rgba(255, 255, 255, .17); }
+.next:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.motivos { display: flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: .6rem; padding: 1rem 1.4rem; border-radius: 1.6rem; font-size: 1.3rem; color: var(--tx2); max-width: 70rem; }
+.motivos input { all: unset; width: 16rem; padding: .7rem 1rem; border-radius: .9rem; background: rgba(255, 255, 255, .07); color: var(--tx); font-size: 1.2rem; }
+.motivos .chip { background: rgba(255, 255, 255, .07); color: var(--tx); }
+.motivos button[type="submit"] { color: var(--mal); background: rgba(240, 138, 120, .12); }
+
+.give .debe-total { font-family: var(--num); font-weight: 700; font-size: 2.4rem; letter-spacing: -.03em; color: var(--aviso); }
+#fiar { color: var(--aviso); }

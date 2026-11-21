@@ -1,5 +1,5 @@
 @echo off
-REM Doble clic para arrancar la prueba del escaner en Windows.
+REM Doble clic para arrancar el programa de la tienda en Windows.
 cd /d "%~dp0"
 where py >nul 2>nul
 if errorlevel 1 (
@@ -13,7 +13,7 @@ if not exist ".venv\Scripts\python.exe" (
   ".venv\Scripts\python.exe" -m pip install -q --upgrade pip || goto error
   ".venv\Scripts\python.exe" -m pip install -q -r requirements.txt || goto error
 )
-".venv\Scripts\python.exe" iniciar.py
+".venv\Scripts\python.exe" iniciar.py %*
 pause
 exit /b 0
 :error

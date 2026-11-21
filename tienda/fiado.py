@@ -165,7 +165,7 @@ def cancelar_cargo(bd: BaseDatos, venta_id: int) -> None:
             "SELECT cliente_id, monto FROM fiado_movimientos WHERE venta_id = ? AND tipo = 'cargo'", (venta_id,)
         ).fetchone()
         if cargo is None:
-            raise NoEncontrado("Esa venta no está en el fiado")
+            raise NoEncontrado("Esa venta no está en los préstamos")
         if con.execute("SELECT 1 FROM fiado_movimientos WHERE venta_id = ? AND tipo = 'cancelacion'",
                        (venta_id,)).fetchone():
             raise NoPermitido("Ese cargo ya estaba cancelado")
