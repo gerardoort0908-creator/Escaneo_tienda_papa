@@ -12,7 +12,7 @@
 .or { display: flex; align-items: center; gap: 1.2rem; color: var(--tx3); font-size: 1.2rem; margin-top: 1.6rem; }
 .or::before, .or::after { content: ""; width: 5rem; height: 1px; background: var(--tx3); }
 .search { all: unset; position: relative; cursor: pointer; display: flex; align-items: center; gap: 1.1rem; width: 36rem; padding: 1.3rem 1.6rem; border-radius: 1.6rem; font-size: 1.45rem; color: var(--tx2);
-  background: linear-gradient(180deg, rgba(255, 255, 255, .085), rgba(255, 255, 255, .025)); box-shadow: inset 0 1px 0 var(--rim), inset 0 0 0 1px rgba(255, 255, 255, .05), 0 2rem 4rem -2rem rgba(0, 0, 0, .75); }
+  background: rgba(28, 28, 30, .88); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); }
 .search:hover { color: var(--tx); }
 .search:focus-visible { outline: 2px solid var(--tx); outline-offset: 3px; }
 .search kbd { margin-left: auto; }
@@ -46,8 +46,8 @@
 .mrow { display: flex; gap: .7rem; flex-wrap: wrap; }
 .bill { all: unset; box-sizing: border-box; cursor: pointer; width: 8.2rem; height: 5.6rem; padding: .7rem .9rem; border-radius: 1rem; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; color: #fff;
   background: repeating-radial-gradient(circle at 85% 35%, rgba(255, 255, 255, .10) 0 1px, transparent 1px 6px), linear-gradient(90deg, transparent 62%, rgba(255, 255, 255, .14) 62% 63%, transparent 63%), radial-gradient(70% 90% at 20% 20%, var(--b1), var(--b2));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), inset 0 0 0 1px rgba(255, 255, 255, .12), 0 2rem 3rem -1.6rem var(--b2), 0 .5rem 1rem -.5rem rgba(0, 0, 0, .6); transition: transform .3s var(--ease); }
-.bill:hover { transform: translateY(-.6rem) rotate(-1.2deg); }
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); transition: transform .2s var(--ease); }
+.bill:hover { transform: translateY(-.3rem); }
 .bill:active, .coin:active { transform: scale(.94); }
 .bill:focus-visible, .coin:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .bill b { font-family: var(--num); font-weight: 700; font-size: 2.1rem; letter-spacing: -.04em; line-height: 1; }
@@ -81,18 +81,18 @@
 .s-done { place-items: center; text-align: center; padding: 6rem 0; }
 .s-done .c { display: grid; justify-items: center; gap: 1.1rem; }
 .s-done .lbl { font-size: 1.6rem; color: var(--tx2); }
-.s-done .num { font-size: 15rem; color: #fff; text-shadow: 0 0 6rem rgba(60, 230, 140, .35); }
+.s-done .num { font-size: 15rem; color: #fff; }
 .give { display: flex; align-items: center; gap: 1.4rem; padding: 1.3rem 2rem; border-radius: 1.8rem; margin-top: .8rem; flex-wrap: wrap; justify-content: center; max-width: 80vw; }
 .give .lead { font-size: 1.4rem; color: var(--tx2); margin-right: .4rem; }
 .give .mb { width: 8rem; height: 4.4rem; border-radius: .7rem; display: grid; place-items: center; font-family: var(--num); font-weight: 700; font-size: 1.8rem; letter-spacing: -.03em; color: #fff;
-  background: repeating-radial-gradient(circle at 85% 35%, rgba(255, 255, 255, .12) 0 1px, transparent 1px 5px), radial-gradient(70% 90% at 20% 20%, var(--b1), var(--b2)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 1rem 1.6rem -.8rem var(--b2); }
+  background: repeating-radial-gradient(circle at 85% 35%, rgba(255, 255, 255, .12) 0 1px, transparent 1px 5px), radial-gradient(70% 90% at 20% 20%, var(--b1), var(--b2)); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }
 .give .coin { cursor: default; width: 4.2rem; height: 4.2rem; }
 .give .coin.plata { width: 3.2rem; height: 3.2rem; }
 .give .coin:hover { transform: none; }
 .x { font-size: 1.3rem; color: var(--tx2); margin-left: -.6rem; }
-.check { width: 4rem; height: 4rem; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #7CF0B0, #24B86A); display: grid; place-items: center; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 1rem 2rem -.6rem rgba(47, 210, 122, .8); }
+.check { width: 4rem; height: 4rem; border-radius: 50%; background: var(--boton); display: grid; place-items: center; }
 .app[data-state="done"] .check { animation: ok 1s var(--ease); }
-.check svg { width: 2rem; height: 2rem; stroke: #03200F; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 30; }
+.check svg { width: 2rem; height: 2rem; stroke: #fff; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 30; }
 .app[data-state="done"] .check svg { animation: traza .5s .3s var(--ease) forwards; }
 @keyframes traza { to { stroke-dashoffset: 0; } }
 @keyframes ok { 0% { transform: scale(.4); opacity: 0; } 45% { transform: scale(1.08); opacity: 1; } 100% { transform: none; } }

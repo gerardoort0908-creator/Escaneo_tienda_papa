@@ -1,9 +1,8 @@
 /* Fiado y Corte de caja: se apoyan en inventario.css (dos paneles, ficha, filtros). */
 
-.tag.debe { --m: var(--aviso); }
-.tag.ok, .tag.cuadra { --m: var(--acc); }
-.tag.sobra { --m: var(--oro); }
-.tag.falta { --m: var(--mal); }
+.tag.debe, .tag.sobra { color: var(--tx); }
+.tag.ok, .tag.cuadra { color: var(--tx2); }
+.tag.falta { color: var(--mal); }
 .pie { display: grid; gap: 1rem; }
 .tit { margin: .4rem 0 0; font-size: 1.25rem; font-weight: 500; color: var(--tx2); }
 .lbl { font-size: 1.2rem; color: var(--tx2); }
@@ -26,7 +25,7 @@
 /* Fiado: cuánto debe y abonar */
 .debe { display: flex; align-items: end; justify-content: space-between; gap: 1rem; padding: 1.4rem 1.6rem; border-radius: 1.6rem; background: rgba(255, 255, 255, .04); }
 .debe .num { font-size: 5.4rem; margin-top: .6rem; }
-.debe.si .num { color: var(--aviso); text-shadow: 0 0 4rem color-mix(in srgb, var(--aviso) 25%, transparent); }
+.debe.si .num { color: var(--aviso); }
 .debe.no .num { color: var(--acc); }
 .debe .ultimo { font-size: 1.15rem; color: var(--tx3); text-align: right; }
 .abono .monto { flex: 1; }
