@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#141311">
+<title>Escáner</title>
+<link rel="stylesheet" href="/static/estilos.css">
+<style>
+  body { display: flex; flex-direction: column; min-height: 100dvh; padding: env(safe-area-inset-top) 16px calc(16px + env(safe-area-inset-bottom)); }
+  header { padding: 18px 4px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .punto { width: 10px; height: 10px; border-radius: 50%; background: var(--suave); display: inline-block; margin-right: 8px; }
+  .punto.ok { background: var(--bien); }
+  .punto.mal { background: var(--mal); }
+  #visor { position: relative; flex: 1; min-height: 50dvh; border-radius: 24px; overflow: hidden; background: #000; border: 1px solid var(--borde); }
+  video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .franja { position: absolute; left: 8%; right: 8%; top: 50%; height: 30%; transform: translateY(-50%);
+            border: 2px solid rgba(214,171,85,.9); border-radius: 14px; box-shadow: 0 0 0 100vmax rgba(0,0,0,.35); }
+  .linea { position: absolute; left: 6%; right: 6%; top: 50%; height: 2px; background: var(--oro); opacity: .8; }
+  #destello { position: absolute; inset: 0; background: var(--bien); opacity: 0; transition: opacity .25s; pointer-events: none; }
+  #destello.si { opacity: .45; transition: none; }
+  #destello.mal { background: var(--mal); }
+  #inicio { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; background: var(--capa); }
+  #inicio svg { width: 120px; margin: 0 auto 18px; display: block; }
+  #ultimo { margin-top: 14px; padding: 16px 18px; min-height: 84px; }
+  #ultimo .codigo { font-size: 1.6rem; font-weight: 600; letter-spacing: .02em; }
+  #ultimo .estado { font-size: .95rem; }
+  .oculto { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1 style="font-size:1.2rem">Escáner</h1>
+  <span class="suave" style="font-size:.9rem"><span id="punto" class="punto"></span><span id="conexion">Sin conectar</span></span>
+</header>
+
+<div id="visor">
+  <video id="video" playsinline muted></video>
+  <div class="franja"></div><div class="linea"></div>
+  <div id="destello"></div>
+  <div id="inicio">
+    <div>
+      <svg viewBox="0 0 120 80" aria-hidden="true">
+        <rect x="2" y="2" width="116" height="76" rx="10" fill="none" stroke="#d6ab55" stroke-width="3"/>
+        <g fill="#f3eee4"><rect x="20" y="16" width="4" height="48"/><rect x="28" y="16" width="2" height="48"/><rect x="34" y="16" width="6" height="48"/><rect x="44" y="16" width="2" height="48"/><rect x="50" y="16" width="4" height="48"/><rect x="58" y="16" width="2" height="48"/><rect x="64" y="16" width="6" height="48"/><rect x="74" y="16" width="2" height="48"/><rect x="80" y="16" width="4" height="48"/><rect x="88" y="16" width="2" height="48"/><rect x="94" y="16" width="6" height="48"/></g>
+        <rect x="8" y="39" width="104" height="2" fill="#d6ab55"/>
+      </svg>
+      <p style="margin:0 0 20px">Pon el código de barras dentro del recuadro dorado.</p>
+      <button id="empezar" class="boton">Empezar a escanear</button>
+      <p id="problema" class="aviso mal oculto" style="margin-top:18px;text-align:left"></p>
+    </div>
+  </div>
+</div>
+
+<div id="ultimo" class="aviso">
+  <div class="suave estado" id="estado">Todavía no hay escaneos</div>
+  <div class="codigo cifra" id="codigo"></div>
+</div>
+
+<script src="/static/vendor/zxing-0.21.3.min.js" defer></script>
+<script src="/static/logica.js" defer></script>
+<script src="/static/celular.js" defer></script>
+</body>
+</html>

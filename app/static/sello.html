@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sello de la tienda</title>
+<link rel="stylesheet" href="/static/estilos.css">
+<style>
+  body { padding: 24px 16px 40px; max-width: 560px; margin: 0 auto; }
+  section { margin-top: 22px; }
+  ol { padding-left: 22px; } li { margin: 8px 0; }
+</style>
+</head>
+<body>
+  <h1 style="font-size:1.5rem">Quitar el aviso de seguridad</h1>
+  <p class="suave">Se hace una sola vez en cada celular. Es opcional: sin esto el escáner funciona igual, solo sale un aviso al abrirlo.</p>
+  <a class="boton" style="display:block;text-align:center;text-decoration:none;margin-top:18px" href="/sello-tienda.crt">1. Descargar el sello</a>
+
+  <section class="aviso">
+    <h2 style="font-size:1.1rem">iPhone</h2>
+    <ol>
+      <li>Toca <b>Permitir</b> cuando pregunte si descargar el perfil.</li>
+      <li>Abre <b>Ajustes</b> → <b>Perfil descargado</b> → <b>Instalar</b>.</li>
+      <li>Ve a <b>Ajustes → General → Información → Ajustes de confianza de certificados</b> y activa <b>Sello de la tienda</b>.</li>
+    </ol>
+  </section>
+  <section class="aviso">
+    <h2 style="font-size:1.1rem">Android</h2>
+    <ol>
+      <li>Abre <b>Ajustes</b> y busca <b>"Certificado"</b>.</li>
+      <li>Toca <b>Certificado de CA</b> → <b>Instalar de todos modos</b>.</li>
+      <li>Elige el archivo <b>sello-tienda.crt</b> de Descargas.</li>
+    </ol>
+  </section>
+  <p class="suave" style="margin-top:22px">Listo. Ahora vuelve a la computadora, toca <b>Abrir escáner</b> y escanea ese QR.</p>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prueba del escáner</title>
+<link rel="stylesheet" href="/static/estilos.css">
+<style>
+  body { padding: 28px; }
+  .rejilla { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; max-width: 1200px; margin: 0 auto; }
+  @media (max-width: 860px) { .rejilla { grid-template-columns: 1fr; } }
+  .panel { background: var(--capa); border: 1px solid var(--borde); border-radius: 24px; padding: 24px; }
+  #grande { text-align: center; padding: 40px 24px; }
+  #grande .codigo { font-size: clamp(2.4rem, 6vw, 4.5rem); font-weight: 600; letter-spacing: .03em; margin: 8px 0; }
+  #grande .lat { font-size: 1.3rem; }
+  #grande.nuevo { animation: llega .6s ease-out; }
+  @keyframes llega { from { box-shadow: 0 0 0 4px var(--bien); } to { box-shadow: 0 0 0 0 transparent; } }
+  .bien { color: var(--bien); } .mal { color: var(--mal); }
+  .metricas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 20px; }
+  .metrica { background: var(--capa-2); border-radius: 14px; padding: 14px; }
+  .metrica b { display: block; font-size: 1.6rem; font-weight: 600; }
+  .metrica span { font-size: .85rem; color: var(--suave); }
+  table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: .95rem; }
+  td, th { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--borde); }
+  th { color: var(--suave); font-weight: 500; }
+  td.n { text-align: right; }
+  .qr { background: #f4efe4; border-radius: 16px; padding: 10px; }
+  .qr img { width: 100%; display: block; }
+  .pestanas { display: flex; gap: 8px; margin: 14px 0; }
+  .pestanas button { flex: 1; padding: 10px; font-size: .95rem; }
+  .pestanas button[aria-pressed="false"] { background: var(--capa-2); color: var(--texto); border: 1px solid var(--borde); }
+  ol { padding-left: 20px; margin: 10px 0 0; } li { margin: 6px 0; }
+  .url { font-size: .8rem; word-break: break-all; }
+</style>
+</head>
+<body>
+<div class="rejilla">
+  <main>
+    <section id="grande" class="panel">
+      <div class="suave" id="titulo">Esperando el primer escaneo…</div>
+      <div class="codigo cifra" id="codigo">—</div>
+      <div class="lat cifra" id="latencia"></div>
+    </section>
+    <section class="panel" style="margin-top:24px">
+      <h2 style="font-size:1.1rem">Qué tan rápido llega (meta: menos de 250 ms)</h2>
+      <div class="metricas">
+        <div class="metrica"><b class="cifra" id="m-cuantos">0</b><span>escaneos</span></div>
+        <div class="metrica"><b class="cifra" id="m-mediana">—</b><span>tiempo normal</span></div>
+        <div class="metrica"><b class="cifra" id="m-p95">—</b><span>los más lentos (95%)</span></div>
+        <div class="metrica"><b class="cifra" id="m-maximo">—</b><span>el más lento</span></div>
+      </div>
+      <table>
+        <thead><tr><th>Hora</th><th>Código</th><th>Tipo</th><th class="n">Viaje WiFi</th><th class="n">Dibujar</th><th class="n">Total</th></tr></thead>
+        <tbody id="lista"></tbody>
+      </table>
+    </section>
+  </main>
+  <aside class="panel">
+    <h2 style="font-size:1.1rem">Conecta el celular</h2>
+    <p class="suave" style="margin:6px 0 0">El celular debe estar en el mismo WiFi que esta computadora.</p>
+    <div class="pestanas">
+      <button class="boton" id="p-escaner" aria-pressed="true">Abrir escáner</button>
+      <button class="boton" id="p-sello" aria-pressed="false">Quitar el aviso</button>
+    </div>
+    <div class="qr"><img id="qr" alt="Código QR para el celular"></div>
+    <div id="pasos-escaner">
+      <ol>
+        <li>Abre la cámara del celular y apunta a este QR.</li>
+        <li>Si sale <b>"La conexión no es privada"</b>: toca <b>Configuración avanzada</b> y luego <b>Continuar</b> (en iPhone: <b>Mostrar detalles</b> → <b>visitar este sitio web</b>).</li>
+        <li>Toca <b>Empezar a escanear</b> y permite la cámara.</li>
+      </ol>
+    </div>
+    <div id="pasos-sello" hidden>
+      <p class="suave">Opcional. Instala el "sello de la tienda" una sola vez y el aviso de seguridad no vuelve a salir.</p>
+    </div>
+    <p class="suave url" id="url"></p>
+    <p class="aviso mal" id="sin-wifi" hidden>Esta computadora no está conectada a un WiFi. Conéctala y vuelve a abrir el programa.</p>
+    <p class="suave" style="font-size:.85rem">Pantalla: <span id="estado-ws">conectando…</span></p>
+  </aside>
+</div>
+<script src="/static/logica.js"></script>
+<script src="/static/pantalla.js"></script>
+</body>
+</html>
