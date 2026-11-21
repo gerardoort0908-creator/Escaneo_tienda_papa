@@ -1,3 +1,28 @@
+# Punto de venta de la tienda
+
+| Carpeta | Qué es |
+|---|---|
+| `tienda/` | Cimientos (Fase 1): base de datos, dinero, inventario, ventas, fiado, caja, reportes, respaldos |
+| `app/` | Escáner del celular (Fase 0) |
+
+## Cimientos (Fase 1)
+
+Todavía sin pantallas: es la parte de adentro que guarda y cuida los datos.
+
+- **Un solo archivo** `datos/tienda.sqlite` con todo. Respaldo automático cada día en
+  `datos/respaldos/diarios/` (se guardan los últimos 30) y cada mes en
+  `datos/respaldos/tienda-AAAA-MM.sqlite` (esos no se borran). Se revisa que cada copia esté sana.
+- **Dinero en centavos enteros**: $22 se guarda como 2200; nunca se pierde un centavo.
+  Precio de venta en pesos cerrados; el costo sí lleva centavos.
+- **Inventario = suma de movimientos** (llegadas, ventas, cancelaciones, ajustes por conteo).
+  El huevo se cuenta en gramos y se vende de medio kilo en medio kilo.
+- **Todo o nada**: una venta guarda venta, renglones, salida de inventario y cargo de fiado
+  juntos, o nada.
+- **Nada se borra**: las ventas se cancelan, productos y clientes se desactivan. La propia
+  base de datos lo impide aunque alguien lo intente por fuera.
+- **Módulos independientes**: cada uno escribe solo en sus tablas (`tienda/nucleo/esquema.py`);
+  una prueba lo revisa. Un registro por módulo en `datos/registros/ventas.log`, `fiado.log`, etc.
+
 # Prueba del escáner (Fase 0)
 
 Experimento para comprobar que **cualquier celular** (Android o iPhone) puede leer
