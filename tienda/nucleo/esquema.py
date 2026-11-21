@@ -12,7 +12,7 @@ from __future__ import annotations
 
 DUENOS: dict[str, set[str]] = {
     "productos": {"productos", "historial_precios", "movimientos_inventario"},
-    "ventas": {"ventas", "venta_lineas"},
+    "ventas": {"ventas", "venta_lineas", "ventas_celular"},
     "fiado": {"clientes", "fiado_movimientos"},
     "caja": {"cortes", "caja_retiros"},
     "reportes": set(),  # solo lee
@@ -177,5 +177,16 @@ BEGIN SELECT RAISE(ABORT, 'Un corte de caja cerrado ya no se modifica'); END;
 """
 )
 
+# v2: ventas hechas en el celular sin la computadora. Cada una se guarda una sola vez
+# aunque el celular la mande de nuevo (por ejemplo, si se cortó el WiFi a medio envío).
+_V2 = """
+CREATE TABLE ventas_celular (
+    origen    TEXT PRIMARY KEY,
+    venta_id  INTEGER NOT NULL UNIQUE REFERENCES ventas (id),
+    celular   TEXT NOT NULL,
+    recibida  TEXT NOT NULL
+);
+""" + _no_borrar("ventas_celular", "Los movimientos guardados no se borran") + _no_cambiar("ventas_celular")
+
 # Cada versión nueva se agrega al final; nunca se cambia una que ya se usó.
-MIGRACIONES: list[str] = [_V1 + _PROTECCION]
+MIGRACIONES: list[str] = [_V1 + _PROTECCION, _V2]

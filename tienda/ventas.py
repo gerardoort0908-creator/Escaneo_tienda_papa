@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import sqlite3
 from dataclasses import dataclass
+from datetime import datetime
 
 from . import fiado, productos
 from .nucleo import dinero, registro, reloj
@@ -109,6 +110,67 @@ def cobrar_efectivo(bd: BaseDatos, pedidos: list[Pedido], recibido: int) -> Reci
     return Recibo(venta_id, cuenta.total, recibido, cambio)
 
 
+@dataclass(frozen=True)
+class DelCelular:
+    """Un renglón tal como se cobró en el celular (con el precio que tenía el celular)."""
+
+    producto_id: int
+    cantidad: int
+    precio: int
+
+
+def de_celular(bd: BaseDatos, origen: str, celular: str, cuando: str, renglones: list[DelCelular],
+               recibido: int) -> tuple[int, bool]:
+    """Guarda una venta en efectivo que se hizo en el celular sin la computadora.
+
+    Se respeta lo que pagó el cliente (el precio del celular) y la hora en que se vendió;
+    el costo es el de hoy. Si la misma venta llega dos veces, la segunda no hace nada.
+    Regresa (venta_id, si_es_nueva)."""
+    try:
+        momento = datetime.strptime(cuando, reloj.FORMATO)
+    except ValueError:
+        raise DatoInvalido("Hora de venta no válida") from None
+    ahora = reloj.ahora()
+    if momento > ahora:  # el reloj del celular iba adelantado
+        momento = ahora
+    cuando = reloj.texto(momento)
+    with bd.transaccion() as con:
+        previa = con.execute("SELECT venta_id FROM ventas_celular WHERE origen = ?", (origen,)).fetchone()
+        if previa:
+            return previa[0], False
+        juntos: dict[tuple[int, int], int] = {}
+        for r in renglones:
+            dinero.validar_centavos(r.precio)
+            juntos[(r.producto_id, r.precio)] = juntos.get((r.producto_id, r.precio), 0) + r.cantidad
+        if not juntos:
+            raise DatoInvalido("La venta del celular viene vacía")
+        lineas = []
+        for (producto_id, precio), cantidad in juntos.items():
+            producto = productos.obtener(bd, producto_id)  # aunque ya esté desactivado: sí se vendió
+            productos.validar_cantidad_venta(producto.unidad, cantidad)
+            lineas.append(Renglon(producto.id, producto.nombre, producto.unidad, cantidad, precio,
+                                  subtotal(precio, cantidad, producto.unidad),
+                                  costo_de(producto.costo_promedio, cantidad, producto.unidad)))
+        total = sum(r.subtotal for r in lineas)
+        dinero.validar_centavos(total)
+        cuenta = Cuenta(tuple(lineas), total, sum(r.costo for r in lineas))
+        recibido = max(recibido, total)  # el celular ya revisó que alcanzara
+        venta_id = _guardar(bd, con, cuenta, "efectivo", recibido=recibido, cambio=recibido - total, cuando=cuando)
+        con.execute("INSERT INTO ventas_celular (origen, venta_id, celular, recibida) VALUES (?, ?, ?, ?)",
+                    (origen, venta_id, celular, reloj.texto()))
+    _log.info("Venta %d del celular %s (%s) por %s, hecha %s", venta_id, celular, origen, dinero.formatear(total), cuando)
+    return venta_id, True
+
+
+def del_celular_recientes(bd: BaseDatos, limite: int = 50) -> list[dict]:
+    with bd.lectura() as con:
+        filas = con.execute(
+            "SELECT c.origen, c.celular, c.recibida, v.id AS venta_id, v.cuando, v.total, v.estado"
+            " FROM ventas_celular c JOIN ventas v ON v.id = c.venta_id ORDER BY c.rowid DESC LIMIT ?", (limite,),
+        ).fetchall()
+    return [dict(f) for f in filas]
+
+
 def vender_fiado(bd: BaseDatos, pedidos: list[Pedido], cliente_id: int) -> int:
     with bd.transaccion() as con:
         cuenta = cotizar(bd, pedidos)
@@ -156,11 +218,13 @@ def efectivo_entre(bd: BaseDatos, desde: str, hasta: str | None) -> int:
 
 
 def _guardar(bd: BaseDatos, con: sqlite3.Connection, cuenta: Cuenta, forma_pago: str, *,
-             recibido: int | None = None, cambio: int | None = None, cliente_id: int | None = None) -> int:
+             recibido: int | None = None, cambio: int | None = None, cliente_id: int | None = None,
+             cuando: str | None = None) -> int:
+    cuando = cuando or reloj.texto()
     venta_id = con.execute(
         "INSERT INTO ventas (cuando, forma_pago, total, costo_total, recibido, cambio, cliente_id)"
         " VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (reloj.texto(), forma_pago, cuenta.total, cuenta.costo_total, recibido, cambio, cliente_id),
+        (cuando, forma_pago, cuenta.total, cuenta.costo_total, recibido, cambio, cliente_id),
     ).lastrowid
     for r in cuenta.renglones:
         con.execute(
@@ -168,7 +232,7 @@ def _guardar(bd: BaseDatos, con: sqlite3.Connection, cuenta: Cuenta, forma_pago:
             " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             (venta_id, r.producto_id, r.nombre, r.unidad, r.cantidad, r.precio_unitario, r.subtotal, r.costo),
         )
-        productos.salida_por_venta(bd, venta_id, r.producto_id, r.cantidad)
+        productos.salida_por_venta(bd, venta_id, r.producto_id, r.cantidad, cuando)
     return venta_id
 
 

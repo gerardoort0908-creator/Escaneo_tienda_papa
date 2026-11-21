@@ -28,6 +28,7 @@
         <input type="date" id="f-desde" aria-label="Desde"><span>al</span><input type="date" id="f-hasta" aria-label="Hasta">
       </div>
       <div class="acciones-rep">
+        <button class="boton" id="ir-ventas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>Cada venta</button>
         <button class="boton" id="imprimir"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2"/><path d="M7 14h10v6H7z"/></svg>Imprimir o PDF</button>
         <button class="boton" id="excel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="m9.5 11 5 6M14.5 11l-5 6"/></svg>Excel</button>
       </div>
@@ -56,6 +57,11 @@
       <div class="tarjeta glass"><div class="t-cab"><h3>Hay que comprar</h3><a class="ver" href="/productos?filtro=acabados">Ver en Productos</a></div><div class="lista" id="faltan"></div></div>
       <div class="tarjeta glass"><div class="t-cab"><h3>No se vendió nada</h3><span class="sub chica">dinero parado</span></div><div class="lista" id="parado"></div></div>
       <div class="tarjeta glass"><div class="t-cab"><h3>Quién te debe</h3><a class="ver" href="/fiado">Ver Préstamos</a></div><div class="lista" id="deben"></div></div>
+    </section>
+
+    <section class="tarjeta glass todas" id="todas">
+      <div class="t-cab"><h3>Cada venta</h3><span class="sub chica" id="todas-cuenta"></span></div>
+      <div id="todas-lista"></div>
     </section>
   </main>
 </div>

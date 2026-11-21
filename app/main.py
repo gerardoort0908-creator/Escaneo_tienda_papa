@@ -20,7 +20,7 @@ from tienda.nucleo.errores import ErrorTienda
 from .certificados import RutasCertificados, sello_en_der
 from .codigos import CodigoInvalido, normalizar
 from .escaneos import Escaneo, Pantallas, RegistroEscaneos, ahora_ms, mensaje_de, registro
-from . import fiado_caja, inventario, reportes_rutas
+from . import fiado_caja, inventario, reportes_rutas, vender_celular
 from .vender import Celular, crear_rutas, error_de_tienda, producto_json
 
 ESTATICOS = Path(__file__).parent / "static"
@@ -38,7 +38,7 @@ class Configuracion:
 
     @property
     def url_celular(self) -> str:
-        return f"https://{self.ip}:{self.puerto_https}/celular#llave={self.llave}"
+        return f"https://{self.ip}:{self.puerto_https}/celular?llave={self.llave}"
 
     @property
     def url_sello(self) -> str:
@@ -143,10 +143,6 @@ def crear_app(config: Configuracion, bd: BaseDatos | None = None) -> FastAPI:
             raise HTTPException(status_code=404)
         return FileResponse(ESTATICOS / "reportes.html")
 
-    @app.get("/celular", include_in_schema=False)
-    async def celular():
-        return FileResponse(ESTATICOS / "celular.html")
-
     @app.get("/sello", include_in_schema=False)
     async def guia_sello():
         return FileResponse(ESTATICOS / "sello.html")
@@ -225,6 +221,8 @@ def crear_app(config: Configuracion, bd: BaseDatos | None = None) -> FastAPI:
         finally:
             estado.pantallas.desconectar(ws)
 
+    app.include_router(vender_celular.crear_rutas(
+        bd, config.llave, lambda r: _exigir_llave(r, estado), estado.pantallas.avisar))
     if bd is not None:
         app.add_exception_handler(ErrorTienda, error_de_tienda)
         app.include_router(crear_rutas(bd, _exigir_local, estado.celular, ejemplo=config.ejemplo))

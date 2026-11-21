@@ -14,7 +14,7 @@
     $("p-sello").setAttribute("aria-pressed", que === "sello");
     $("pasos-escaner").hidden = que !== "celular";
     $("pasos-sello").hidden = que !== "sello";
-    if (info) $("url").textContent = que === "sello" ? info.url_sello : info.url_celular.split("#")[0];
+    if (info) $("url").textContent = que === "sello" ? info.url_sello : info.url_celular.split("?")[0];
   }
 
   function pintarMetricas() {

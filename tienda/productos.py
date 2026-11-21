@@ -254,7 +254,7 @@ def validar_cantidad_venta(unidad: str, cantidad: int) -> None:
     _validar_cantidad(cantidad, unidad, exigir_paso=True)
 
 
-def salida_por_venta(bd: BaseDatos, venta_id: int, producto_id: int, cantidad: int) -> None:
+def salida_por_venta(bd: BaseDatos, venta_id: int, producto_id: int, cantidad: int, cuando: str | None = None) -> None:
     """Lo usa Ventas. Se permite quedar en negativo: no se le niega una venta al cliente
     porque el inventario no esté al día; el reporte de faltantes lo señalará."""
     with bd.transaccion() as con:
@@ -263,7 +263,7 @@ def salida_por_venta(bd: BaseDatos, venta_id: int, producto_id: int, cantidad: i
         con.execute(
             "INSERT INTO movimientos_inventario (producto_id, cantidad, tipo, costo_unitario, venta_id, cuando)"
             " VALUES (?, ?, 'venta', ?, ?, ?)",
-            (producto_id, -cantidad, fila["costo_promedio"], venta_id, reloj.texto()),
+            (producto_id, -cantidad, fila["costo_promedio"], venta_id, cuando or reloj.texto()),
         )
 
 

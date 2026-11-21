@@ -158,6 +158,12 @@
     const cuanto = el("div", "cuanto", modoNuevo ? "0" : (kg ? V.cantidadTexto(p.existencia, "kg").replace(" kg", "") : String(p.existencia)));
     cuanto.appendChild(el("small", "", kg ? "kg" : (p.existencia === 1 ? "pieza" : "piezas")));
     izq.append(el("div", "lbl", modoNuevo ? "Hay ahora (se suma en Llegó mercancía)" : "Hay ahora · " + nivel.texto), cuanto);
+    if (!modoNuevo) {
+      const llegaron = el("button", "sumar", kg ? "+ Llegaron kilos" : "+ Llegaron piezas");
+      llegaron.id = "d-llegaron";
+      llegaron.onclick = () => abrirLlegada(d, p);
+      izq.appendChild(llegaron);
+    }
     const min = el("div", "min");
     let minimo = p.minimo;
     const paso = el("span", "step");
@@ -170,7 +176,7 @@
     menos.setAttribute("aria-label", "Bajar el mínimo");
     mas.setAttribute("aria-label", "Subir el mínimo");
     paso.append(menos, valorMin, mas);
-    min.append(el("span", "", "Avísame cuando queden"), paso);
+    min.append(el("span", "", "Avísame cuando queden"), paso, el("span", "nota-min", "Esto no suma piezas"));
     ex.append(izq, min);
     d.appendChild(ex);
 
@@ -330,6 +336,85 @@
     };
     d.querySelector(".mt").prepend(caja);
     input.focus();
+  }
+
+  /** Sumar lo que llegó sin salir de Productos: una ventanita con cuántas llegaron y cuánto costaron. */
+  function abrirLlegada(d, p) {
+    const kg = p.unidad === "kg";
+    const capa = el("div", "capa");
+    const panel = el("form", "panel glass llegada");
+    panel.setAttribute("role", "dialog");
+    panel.setAttribute("aria-label", "Llegaron piezas");
+    const titulo = el("h3", "", p.nombre);
+    const sub = el("p", "sub", "Hay " + T.existenciaTexto(p.existencia, p.unidad) + ". Escribe lo que llegó y se suma.");
+    const cant = el("input");
+    cant.inputMode = "decimal";
+    cant.autocomplete = "off";
+    const costo = el("input");
+    costo.inputMode = "decimal";
+    costo.autocomplete = "off";
+    costo.value = p.costo ? (p.costo / 100).toFixed(p.costo % 100 ? 2 : 0) : "";
+    const campoCant = el("label", "campo");
+    campoCant.append(el("span", "", kg ? "¿Cuántos kilos llegaron?" : "¿Cuántas piezas llegaron?"), cant);
+    const campoCosto = el("label", "campo");
+    const pre = el("span", "pre", "$");
+    pre.appendChild(costo);
+    campoCosto.append(el("span", "", kg ? "¿Cuánto te costó cada kilo?" : "¿Cuánto te costó cada una?"), pre);
+    const dos = el("div", "dos");
+    dos.append(campoCant, campoCosto);
+    const total = el("p", "total-llegada", "");
+    const error = el("p", "error", "");
+    error.setAttribute("aria-live", "polite");
+    const no = el("button", "act soft", "Cancelar");
+    no.type = "button";
+    const si = el("button", "act", "Sumar");
+    si.type = "submit";
+    const acts = el("div", "acts2");
+    acts.append(no, si);
+    panel.append(titulo, sub, dos, total, error, acts);
+    capa.appendChild(panel);
+    (document.getElementById("alta") || document.body).parentNode.appendChild(capa);
+
+    const leer = () => {
+      const t = cant.value.trim();
+      const cantidad = kg ? I.leerKilos(t) : (/^\d+$/.test(t) && Number(t) > 0 ? Number(t) : null);
+      const c = costo.value.trim();
+      const centavos = c === "" || c === "0" ? 0 : V.leerMonto(c);
+      return { cantidad, centavos };
+    };
+    const pintarTotal = () => {
+      const { cantidad, centavos } = leer();
+      total.textContent = cantidad && centavos
+        ? "Pagaste " + V.pesos(Math.round((cantidad * centavos) / (kg ? 1000 : 1))) + " en total"
+        : "";
+    };
+    cant.addEventListener("input", pintarTotal);
+    costo.addEventListener("input", pintarTotal);
+    const cerrar = () => { capa.remove(); document.removeEventListener("keydown", tecla, true); };
+    const tecla = (e) => { if (e.key === "Escape") { e.stopImmediatePropagation(); cerrar(); } };
+    document.addEventListener("keydown", tecla, true);
+    no.onclick = cerrar;
+    capa.addEventListener("mousedown", (e) => { if (e.target === capa) cerrar(); });
+
+    panel.onsubmit = async (e) => {
+      e.preventDefault();
+      const { cantidad, centavos } = leer();
+      if (!cantidad) { error.textContent = kg ? "Escribe los kilos que llegaron, por ejemplo 12.5" : "Escribe cuántas piezas llegaron"; cant.focus(); return; }
+      if (centavos === null) { error.textContent = "Escribe el costo como 15 o 15.50"; costo.focus(); return; }
+      si.classList.add("off");
+      try {
+        await api("/api/mercancia", { operacion: T.nuevoId(), renglones: [{ producto_id: p.id, cantidad, costo: centavos }], nota: null });
+        cerrar();
+        aviso("Listo: se sumaron " + T.existenciaTexto(cantidad, p.unidad) + " de «" + p.nombre + "».");
+        elegido = await api("/api/inventario/" + p.id);
+        await cargar(true);
+        pintarDetalle();
+      } catch (err) {
+        si.classList.remove("off");
+        error.textContent = err.message;
+      }
+    };
+    cant.focus();
   }
 
   let armado = null;

@@ -85,3 +85,30 @@
 
 /* La hoja pasa por debajo del menú de abajo: el menú se hace opaco para que no se mezcle. */
 .rep ~ .dock { background: rgba(26, 25, 24, .94); }
+
+/* Cada venta: número y hora, lo que se llevó, y el total. */
+.todas { scroll-margin-top: 1rem; }
+#todas-lista { display: grid; gap: .2rem; }
+.dia-v { display: flex; justify-content: space-between; align-items: baseline; padding: 1.2rem .8rem .5rem; font-size: 1.3rem; color: var(--tx2); }
+.dia-v:first-child { padding-top: 0; }
+.dia-v b { font-weight: 600; color: var(--tx); }
+.vt { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr) auto; gap: 1.4rem; align-items: start; padding: .9rem .8rem; border-radius: 1rem; font-size: 1.3rem; }
+.vt:nth-child(odd of .vt) { background: rgba(255, 255, 255, .03); }
+.num-v b { display: block; font-weight: 600; }
+.num-v small { display: block; font-size: 1.05rem; color: var(--tx3); }
+.que { min-width: 0; line-height: 1.45; }
+.marcas { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .45rem; }
+.m { padding: .2rem .8rem; border-radius: 99px; font-size: 1.02rem; background: rgba(255, 255, 255, .07); color: var(--tx2); }
+.m.debe { color: var(--aviso); background: rgba(245, 194, 122, .1); }
+.m.mal { color: var(--mal); background: rgba(240, 138, 120, .12); }
+.vt .v { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.vt.cancelada .que > span, .vt.cancelada .v { text-decoration: line-through; color: var(--tx3); }
+.mas-v { justify-self: center; margin-top: .8rem; }
+@media print {
+  #ir-ventas, .mas-v { display: none !important; }
+  .todas { break-inside: auto; }
+  .vt { break-inside: avoid; }
+  .vt:nth-child(odd of .vt) { background: #f5f2ee !important; }
+  .num-v b, .que, .vt .v, .dia-v b { color: #111 !important; }
+  .num-v small, .dia-v, .m { color: #555 !important; }
+}

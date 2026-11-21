@@ -76,6 +76,7 @@ def armar(bd: BaseDatos, d: date, h: date) -> dict:
         "prestamos": {"deben": sum(c.saldo for c in deudores), "personas": len(deudores),
                       "deudores": [{"nombre": c.nombre, "saldo": c.saldo} for c in deudores[:6]]},
         "cortes": reportes.cortes_entre(bd, d, h),
+        "lista_ventas": reportes.lista_de_ventas(bd, d, h),
     }
 
 
