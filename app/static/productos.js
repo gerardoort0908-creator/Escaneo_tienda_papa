@@ -49,7 +49,9 @@
       relleno.style.width = Math.max(3, I.llenado(p.existencia, p.minimo) * 100) + "%";
       barra.appendChild(relleno);
       n.append(el("b", "", p.nombre), barra);
-      fila.append(T.tile(p.nombre), n, el("span", "tag", T.existenciaTexto(p.existencia, p.unidad) + " · " + nivel.texto));
+      const tag = el("span", "tag" + (p.nivel === "bien" ? "" : " aviso"), T.existenciaTexto(p.existencia, p.unidad) + " · ");
+      tag.appendChild(el("span", "estado", nivel.texto));
+      fila.append(T.tile(p.nombre), n, tag);
       fila.onclick = () => elegir(p.id);
       lista.appendChild(fila);
     }
@@ -151,7 +153,7 @@
     // Existencia y mínimo
     const nivel = I.NIVELES[I.nivel(p.existencia, p.minimo)];
     const ex = el("div", "existe");
-    ex.style.setProperty("--m", modoNuevo ? "var(--tx2)" : nivel.color);
+    ex.style.setProperty("--m", modoNuevo ? "var(--tx2)" : p.existencia > p.minimo ? "var(--tx)" : nivel.color);
     const izq = el("div");
     const cuanto = el("div", "cuanto", modoNuevo ? "0" : (kg ? V.cantidadTexto(p.existencia, "kg").replace(" kg", "") : String(p.existencia)));
     cuanto.appendChild(el("small", "", kg ? "kg" : (p.existencia === 1 ? "pieza" : "piezas")));

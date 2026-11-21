@@ -11,7 +11,7 @@
   }
 
   const NIVELES = {
-    bien: { texto: "Bien", color: "#5BE39B" },
+    bien: { texto: "Bien", color: "rgba(244, 242, 238, .45)" }, // lo normal no llama la atención
     acabando: { texto: "Se está acabando", color: "#F2B45C" },
     acabado: { texto: "Se acabó", color: "#E8806E" },
   };
