@@ -1,0 +1,87 @@
+/* Reportes: una sola hoja que baja con la rueda del ratón; también se imprime en blanco. */
+
+.rep { position: absolute; inset: 6.4rem 0 0; padding: 1.1rem 4.4rem 11rem; -webkit-mask-image: linear-gradient(transparent, #000 1.2rem); mask-image: linear-gradient(transparent, #000 1.2rem); overflow-y: auto; scrollbar-width: none; display: grid; gap: 1.6rem; align-content: start; }
+.rep::-webkit-scrollbar { display: none; }
+.rep-cab { display: flex; align-items: center; gap: 1.4rem; flex-wrap: wrap; }
+.rep-cab .titulo { display: flex; align-items: baseline; gap: 1.2rem; margin-right: auto; }
+.rep-cab h2 { margin: 0; font-size: 2.6rem; font-weight: 600; letter-spacing: -.02em; }
+.rep-cab .sub { font-size: 1.4rem; color: var(--tx2); }
+.rep-cab .filtros { align-self: center; }
+.fechas { display: flex; align-items: center; gap: .6rem; font-size: 1.25rem; color: var(--tx2); }
+.fechas input { all: unset; padding: .55rem .9rem; border-radius: .9rem; background: rgba(255, 255, 255, .08); color: var(--tx); font-size: 1.25rem; color-scheme: dark; }
+.fechas input:focus { box-shadow: inset 0 0 0 1px var(--oro); }
+.acciones-rep { display: flex; gap: .6rem; }
+.solo-papel { display: none; }
+
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.2rem; }
+.kpi { padding: 1.5rem 1.7rem; border-radius: 1.8rem; display: grid; gap: .5rem; align-content: start; }
+.kpi .lbl { font-size: 1.25rem; color: var(--tx2); }
+.kpi .num { font-size: 4.4rem; }
+.kpi.gana .num { color: var(--acc); }
+.kpi.debe .num { color: var(--aviso); }
+.kpi small { font-size: 1.15rem; color: var(--tx3); font-variant-numeric: tabular-nums; }
+.kpi small.sube { color: var(--acc); }
+.kpi small.baja { color: var(--mal); }
+.kpi .partes { display: flex; gap: 1.2rem; font-size: 1.15rem; color: var(--tx2); font-variant-numeric: tabular-nums; }
+.kpi .partes b { color: var(--tx); font-weight: 600; }
+.barra2 { display: flex; height: .6rem; border-radius: 9px; overflow: hidden; background: rgba(255, 255, 255, .08); }
+.barra2 i { display: block; height: 100%; }
+.barra2 .ef { background: var(--oro); }
+.barra2 .pr { background: var(--aviso); opacity: .55; }
+
+.tarjeta { padding: 1.6rem 1.8rem; border-radius: 1.8rem; display: grid; gap: 1rem; align-content: start; min-width: 0; }
+.t-cab { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.t-cab h3 { margin: 0; font-size: 1.6rem; font-weight: 600; letter-spacing: -.01em; }
+.sub.chica { font-size: 1.15rem; color: var(--tx3); }
+.ver { font-size: 1.15rem; color: var(--oro); text-decoration: none; }
+.ver:hover { text-decoration: underline; }
+.leyenda { display: flex; align-items: center; gap: .5rem; font-size: 1.15rem; color: var(--tx2); }
+.leyenda i { width: 1rem; height: 1rem; border-radius: .3rem; display: inline-block; margin-left: .6rem; }
+.l-vende { background: var(--oro); }
+.l-gana { background: var(--acc); }
+.segin.chico button { padding: .5rem 1.2rem; font-size: 1.15rem; }
+.fila-graficas { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.2rem; }
+.lienzo { position: relative; height: 26rem; }
+.fila-listas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem; }
+.lista { display: grid; gap: .2rem; }
+.it { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: center; padding: .7rem .8rem; border-radius: 1rem; font-size: 1.3rem; }
+.it:nth-child(odd) { background: rgba(255, 255, 255, .03); }
+.it b { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.it small { display: block; font-size: 1.05rem; color: var(--tx3); }
+.it .v { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.it.acabado .v { color: var(--mal); }
+.it.acabando .v { color: var(--aviso); }
+.it.debe .v { color: var(--aviso); }
+.lista .vacio { font-size: 1.25rem; padding: .6rem .8rem; }
+.mas-items { font-size: 1.1rem; color: var(--tx3); padding: .4rem .8rem; }
+
+/* En papel: blanco, sin barras ni botones, todo en una o dos hojas. */
+@media print {
+  @page { size: letter; margin: 12mm; }
+  :root { font-size: 7px; }
+  html, body { height: auto; overflow: visible; background: #fff !important; }
+  body { color: #1a1a1a; }
+  .app { position: static; overflow: visible; }
+  .app::before, .app::after, .amb, .top, .dock, .capa, .toast, .filtros, .fechas, .acciones-rep, .segin, .ver { display: none !important; }
+  .rep { position: static; padding: 0; overflow: visible; gap: 2.4rem; -webkit-mask-image: none; mask-image: none; }
+  .lienzo { height: 62mm; }
+  .lienzo canvas { width: 100% !important; height: 100% !important; }
+  .rep-cab .titulo { display: none; }
+  .solo-papel { display: block; margin: 0; font-size: 3.2rem; font-weight: 700; letter-spacing: -.02em; color: #111; }
+  .glass, .kpi, .tarjeta { background: #fff !important; box-shadow: none !important; border: 1px solid #d8d2c8; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; break-inside: avoid; }
+  .kpi .lbl, .kpi small, .kpi .partes, .t-cab h3, .leyenda, .it small, .sub, .lista .vacio { color: #555 !important; }
+  .kpi .num, .kpi .partes b, .it b { color: #111 !important; }
+  .num .cur, .num .cts { color: #666 !important; }
+  .kpi.gana .num, .kpi small.sube { color: #157a45 !important; }
+  .kpi.debe .num, .it.debe .v, .it.acabando .v { color: #a5650c !important; }
+  .it.acabado .v, .kpi small.baja { color: #b23a2a !important; }
+  .it:nth-child(odd) { background: #f5f2ee !important; }
+  .l-vende, .barra2 .ef { background: #b8924a !important; }
+  .l-gana { background: #1f9e5c !important; }
+  .barra2 { background: #eee !important; }
+  .fila-graficas { grid-template-columns: 1fr 1fr; }
+  * { text-shadow: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* La hoja pasa por debajo del menú de abajo: el menú se hace opaco para que no se mezcle. */
+.rep ~ .dock { background: rgba(26, 25, 24, .94); }

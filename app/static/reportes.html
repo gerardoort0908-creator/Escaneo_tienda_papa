@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reportes · Tu tienda</title>
+<link rel="stylesheet" href="/static/base.css">
+<link rel="stylesheet" href="/static/inventario.css">
+<link rel="stylesheet" href="/static/reportes.css">
+</head>
+<body>
+<div class="app" id="app">
+  <main class="rep" id="rep">
+    <header class="rep-cab">
+      <div class="titulo">
+        <h2>Reportes</h2>
+        <span class="sub" id="periodo-txt"></span>
+      </div>
+      <div class="filtros" id="periodos" role="group" aria-label="Periodo">
+        <button data-p="hoy" class="on">Hoy</button>
+        <button data-p="ayer">Ayer</button>
+        <button data-p="semana">Esta semana</button>
+        <button data-p="mes">Este mes</button>
+        <button data-p="mespasado">Mes pasado</button>
+        <button data-p="fechas">Elegir fechas</button>
+      </div>
+      <div class="fechas" id="fechas" hidden>
+        <input type="date" id="f-desde" aria-label="Desde"><span>al</span><input type="date" id="f-hasta" aria-label="Hasta">
+      </div>
+      <div class="acciones-rep">
+        <button class="boton" id="imprimir"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2"/><path d="M7 14h10v6H7z"/></svg>Imprimir o PDF</button>
+        <button class="boton" id="excel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="m9.5 11 5 6M14.5 11l-5 6"/></svg>Excel</button>
+      </div>
+    </header>
+    <h1 class="solo-papel" id="papel-titulo"></h1>
+
+    <section class="kpis" id="kpis" aria-live="polite"></section>
+
+    <section class="fila-graficas">
+      <div class="tarjeta glass grande">
+        <div class="t-cab"><h3 id="g1-titulo">Cómo se vendió</h3>
+          <span class="leyenda"><i class="l-vende"></i>Vendiste <i class="l-gana"></i>Ganaste</span></div>
+        <div class="lienzo"><canvas id="g1" aria-label="Gráfica de ventas y ganancia"></canvas></div>
+      </div>
+      <div class="tarjeta glass">
+        <div class="t-cab"><h3>Lo que más se vende</h3>
+          <div class="segin chico" id="orden" role="group" aria-label="Ordenar por">
+            <button data-o="vendido" class="on">Dinero</button><button data-o="ganancia">Ganancia</button>
+          </div></div>
+        <div class="lienzo"><canvas id="g2" aria-label="Gráfica de los productos que más se venden"></canvas></div>
+        <p class="vacio" id="g2-vacio" hidden>No hubo ventas en este periodo.</p>
+      </div>
+    </section>
+
+    <section class="fila-listas">
+      <div class="tarjeta glass"><div class="t-cab"><h3>Hay que comprar</h3><a class="ver" href="/productos?filtro=acabados">Ver en Productos</a></div><div class="lista" id="faltan"></div></div>
+      <div class="tarjeta glass"><div class="t-cab"><h3>No se vendió nada</h3><span class="sub chica">dinero parado</span></div><div class="lista" id="parado"></div></div>
+      <div class="tarjeta glass"><div class="t-cab"><h3>Quién te debe</h3><a class="ver" href="/fiado">Ver Préstamos</a></div><div class="lista" id="deben"></div></div>
+    </section>
+  </main>
+</div>
+<script src="/static/vendor/chart-4.4.1.min.js"></script>
+<script src="/static/logica.js"></script>
+<script src="/static/venta.js"></script>
+<script src="/static/reportes-logica.js"></script>
+<script src="/static/comun.js"></script>
+<script src="/static/reportes.js"></script>
+</body>
+</html>

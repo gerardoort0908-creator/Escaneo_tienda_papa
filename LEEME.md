@@ -3,7 +3,87 @@
 | Carpeta | Qué es |
 |---|---|
 | `tienda/` | Cimientos (Fase 1): base de datos, dinero, inventario, ventas, fiado, caja, reportes, respaldos |
-| `app/` | Escáner del celular (Fase 0) |
+| `app/` | Servidor y pantallas: Vender y cobrar, escáner del celular |
+
+## Vender y cobrar
+
+| Para | Mac | Windows |
+|---|---|---|
+| Usar la tienda de verdad | `iniciar.command` | `iniciar.bat` |
+| Practicar con productos de ejemplo | `probar-ejemplo.command` | `probar-ejemplo.bat` |
+
+Lo de práctica se guarda aparte (`datos/ejemplo/`) y no se mezcla con lo real.
+
+1. **Escanear**: el producto aparece arriba de la lista y se ilumina; se oye un bip. Si se
+   escanea otra vez, se suma en el mismo renglón. También se puede buscar por nombre o
+   teclear el código (F2, o simplemente empezar a escribir).
+2. **Ajustar**: − y + en cada renglón. El huevo y lo de granel van de medio kilo en medio kilo.
+3. **Cobrar** (Enter): se tocan los billetes y monedas que dio el cliente, o se escribe otra
+   cantidad. Muestra cuánto falta o el cambio. "Pagó exacto" cobra de una vez.
+4. **Cambio**: el número grande y con qué billetes y monedas darlo. Enter o cualquier
+   escaneo empieza la siguiente venta.
+
+- **Cancelar venta** (antes de cobrar) borra la cuenta sin guardar nada. Pide tocar dos veces.
+- **Cancelar esta venta** (ya cobrada) pide el motivo, regresa la mercancía al inventario y la
+  venta queda guardada como cancelada.
+- **Código no registrado**: sale una ventanita para darlo de alta con nombre y precio y se
+  agrega a la venta.
+- Antes de guardar, el servidor revisa que el total sea el mismo que se vio en pantalla (si
+  alguien cambió un precio, avisa) y un doble Enter nunca cobra dos veces.
+## Productos
+
+- Lista con barra de existencias: verde **Bien**, ámbar **Se está acabando** (llegó al mínimo),
+  rojo **Se acabó**. Filtros para ver solo los que se acaban o los desactivados.
+- Al tocar uno: nombre, código, **Te cuesta** (con centavos) y **Lo vendes en** (pesos cerrados),
+  cuánto ganas por pieza y el mínimo ("Avísame cuando queden"). Los cambios de precio y costo
+  quedan en su historial; las ventas pasadas no cambian.
+- **Contar lo que hay**: si en el anaquel hay otra cantidad, se corrige (conteo, merma, caducado…).
+- **Ya no lo vendo**: deja de salir para vender pero su historia se queda.
+- Escanear un código desconocido abre el alta con ese código; si el producto a la vista no
+  tiene código, se lo pone.
+
+## Llegó mercancía
+
+Se escanea lo que llegó; cada escaneo suma una pieza (o un kilo). Se ajusta cuántos son y
+cuánto costó cada uno. Al guardar se suma al inventario y el costo se vuelve el **costo
+promedio** (si había 10 a $10 y llegan 10 a $12, cada uno cuesta $11).
+
+- Computadora lenta: `http://localhost:8000/vender?ligero=1` quita los efectos de vidrio.
+  Se activa solo en computadoras de 2 núcleos o menos.
+
+## Préstamos (fiado)
+
+En Vender, al cobrar, el botón **No pagó: es préstamo** abre la lista de clientes. Se elige
+uno (o se escribe un nombre nuevo y se da de alta ahí mismo) y la venta se le carga.
+La mercancía sale del inventario igual que en una venta normal.
+
+La pantalla **Préstamos** muestra quién debe y cuánto, qué se llevó cada vez y lo que ha
+pagado. Para registrar un pago: botones rápidos ($20, $50...), escribir otra cantidad o
+**Pagó todo**. Un cliente solo se puede quitar de la lista cuando ya no debe nada.
+
+## Corte de caja
+
+1. **Abrir la caja** con el dinero con que se empieza (el fondo).
+2. Durante el día, **Sacar dinero** (pagar a un proveedor, un gasto) y anotar para qué.
+3. Al final, contar los billetes y monedas; la pantalla dice si **cuadra**, **sobra** o
+   **falta**. Debe haber = fondo + ventas en efectivo + pagos de fiado − lo que se sacó.
+
+Lo fiado no entra a la caja (no es dinero todavía); entra cuando el cliente paga.
+
+## Reportes
+
+Se elige el periodo (Hoy, Ayer, Esta semana, Este mes, Mes pasado o fechas a mano) y se ve:
+
+- Cuánto se vendió, cuánto se ganó, cuánto entró en efectivo y cuánto deben.
+- Gráfica de ventas y ganancia por día (o por hora, si es un solo día).
+- Lo que más se vende, por dinero o por ganancia.
+- Lo que hay que comprar, lo que no se vendió nada (dinero parado) y quién debe.
+
+**Imprimir o PDF** abre la ventana de imprimir en hoja blanca (ahí mismo se puede
+"Guardar como PDF"). **Excel** descarga un archivo con hojas de resumen, por día,
+más vendidos, cada venta, lo que se está acabando, préstamos y cortes de caja.
+
+La primera vez que se abre esta versión instala `openpyxl` (para el Excel); necesita internet.
 
 ## Cimientos (Fase 1)
 
@@ -89,5 +169,5 @@ Se instala el "sello de la tienda" una sola vez y el aviso ya no vuelve a salir.
 ```
 python -m pip install -r requirements-dev.txt
 python -m pytest
-node --test tests/logica.test.js
+node --test tests/*.test.js
 ```

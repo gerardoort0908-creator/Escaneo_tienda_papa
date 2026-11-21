@@ -1,7 +1,7 @@
-"""Arranca la prueba del escáner.
+"""Arranca el programa de la tienda.
 
 Abre dos puertas en esta computadora:
-- http://localhost:8000/pantalla  → la pantalla que ve el papá (solo desde esta compu).
+- http://localhost:8000/vender    → la pantalla de vender (solo desde esta compu).
 - https://<ip>:8443/celular       → el escáner del celular (https para que abra la cámara).
 """
 
@@ -17,11 +17,30 @@ import webbrowser
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-import uvicorn
 
-from app.certificados import preparar_certificados
-from app.main import Configuracion, crear_app
-from app.red import ip_en_la_red
+def _completar_dependencias() -> None:
+    """Si una versión nueva del programa necesita algo más (como openpyxl para el Excel), se instala solo."""
+    import importlib.util
+    import subprocess
+
+    if importlib.util.find_spec("openpyxl") is not None:
+        return
+    print("Instalando lo que necesita la versión nueva (solo esta vez)...")
+    requisitos = Path(__file__).resolve().parent / "requirements.txt"
+    subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r", str(requisitos)], check=False)
+
+
+_completar_dependencias()
+
+import uvicorn  # noqa: E402
+
+import tienda  # noqa: E402
+from app import ejemplo  # noqa: E402
+from app.certificados import preparar_certificados  # noqa: E402
+from app.main import Configuracion, crear_app  # noqa: E402
+from app.puertos import liberar  # noqa: E402
+from tienda.nucleo.base_datos import BaseDatos  # noqa: E402
+from app.red import ip_en_la_red  # noqa: E402
 
 CARPETA = Path(__file__).resolve().parent
 DATOS = CARPETA / "datos"
@@ -47,8 +66,8 @@ def configurar_registro() -> None:
     registro.addHandler(archivo)
 
 
-async def servir(config: Configuracion) -> None:
-    app = crear_app(config)
+async def servir(config: Configuracion, bd: BaseDatos) -> None:
+    app = crear_app(config, bd)
     assert config.certificados is not None
     http = uvicorn.Server(uvicorn.Config(app, host="0.0.0.0", port=config.puerto_http, log_level="warning",
                                        timeout_keep_alive=120))
@@ -64,34 +83,45 @@ async def servir(config: Configuracion) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Prueba del escáner con celular")
+    parser = argparse.ArgumentParser(description="Programa de la tienda")
     parser.add_argument("--ip", help="Usar esta IP en lugar de detectarla")
     parser.add_argument("--sin-navegador", action="store_true", help="No abrir la pantalla al arrancar")
+    parser.add_argument("--ejemplo", action="store_true",
+                        help="Probar con productos de ejemplo (se guarda aparte, en datos/ejemplo)")
     args = parser.parse_args()
 
+    problema = liberar([8000, 8443])
+    if problema:
+        print(f"\n  No se pudo arrancar. {problema}\n")
+        sys.exit(1)
     configurar_registro()
+    bd = tienda.abrir(DATOS / "ejemplo" if args.ejemplo else DATOS)
+    if args.ejemplo:
+        ejemplo.cargar(bd)
     ip = args.ip or ip_en_la_red()
     config = Configuracion(
         ip=ip,
         llave=leer_o_crear_llave(DATOS / "llave.txt"),
         certificados=preparar_certificados(DATOS / "certificados", ip),
+        ejemplo=args.ejemplo,
     )
     print()
-    print("  Prueba del escáner funcionando.")
-    print(f"  Pantalla de la computadora: http://localhost:{config.puerto_http}/pantalla")
+    print("  La tienda está funcionando." + ("  (MODO EJEMPLO: nada de esto es real)" if args.ejemplo else ""))
+    print(f"  Pantalla de la computadora: http://localhost:{config.puerto_http}/vender")
     print(f"  Dirección para el celular:  https://{ip}:{config.puerto_https}/celular")
     if ip == "127.0.0.1":
         print("  OJO: esta computadora no parece estar en un WiFi; el celular no la va a encontrar.")
     print("  Para apagarlo cierra esta ventana o presiona Ctrl+C.")
     print()
     if not args.sin_navegador:
-        threading.Timer(1.5, webbrowser.open, args=(f"http://localhost:{config.puerto_http}/pantalla",)).start()
+        threading.Timer(1.5, webbrowser.open, args=(f"http://localhost:{config.puerto_http}/vender",)).start()
     try:
-        asyncio.run(servir(config))
+        asyncio.run(servir(config, bd))
     except KeyboardInterrupt:
         pass
-    except OSError as error:
-        print(f"\n  No se pudo arrancar: {error}\n  ¿Ya hay otra ventana del programa abierta?")
+    except (OSError, SystemExit):
+        print("\n  No se pudo arrancar: otra ventana o programa está usando la puerta 8000 u 8443."
+              "\n  Cierra las otras ventanas del programa (o reinicia la computadora) y vuelve a intentar.")
         sys.exit(1)
 
 

@@ -101,3 +101,14 @@ def test_huevo_solo_de_medio_kilo(bd, surtido):
     P.validar_cantidad_venta("kg", 1500)
     with pytest.raises(DatoInvalido, match="medio kilo"):
         P.validar_cantidad_venta("kg", 750)
+
+
+def test_corregir_costo_queda_en_el_historial(bd, surtido):
+    from tienda import productos as P
+
+    p = P.corregir_costo(bd, surtido["coca"], 1600)
+    assert p.costo_promedio == 1600
+    ultimo = P.historial_precios(bd, surtido["coca"])[-1]
+    assert ultimo["costo"] == 1600 and ultimo["motivo"] == "costo corregido"
+    assert P.corregir_costo(bd, surtido["coca"], 1600).costo_promedio == 1600  # sin cambio, sin renglón nuevo
+    assert [h["motivo"] for h in P.historial_precios(bd, surtido["coca"])] == ["alta", "costo corregido"]

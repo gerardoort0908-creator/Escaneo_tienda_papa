@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Llegó mercancía · Tu tienda</title>
+<link rel="stylesheet" href="/static/base.css">
+<link rel="stylesheet" href="/static/inventario.css">
+</head>
+<body>
+<div class="app" id="app">
+  <main class="view">
+    <section class="pane glass" aria-label="Lo que llegó">
+      <div class="encabezado">
+        <h2>Llegó mercancía</h2>
+        <span class="sub"></span>
+        <button class="mini" data-abrir-busqueda>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>Buscar<kbd>F2</kbd>
+        </button>
+      </div>
+      <p class="sub">Escanea o busca lo que llegó. Ajusta cuántos son y cuánto te costó cada uno.</p>
+      <div class="rows" id="lista" role="list"></div>
+      <div class="vacio-grande" id="vacio">
+        <svg viewBox="0 0 300 180" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="70" y="20" width="76" height="140" rx="16" stroke="var(--tx2)" stroke-width="2"/>
+          <path d="M90 70v-8a4 4 0 0 1 4-4h8M114 58h8a4 4 0 0 1 4 4v8M126 98v8a4 4 0 0 1-4 4h-8M102 110h-8a4 4 0 0 1-4-4v-8" stroke="var(--oro)" stroke-width="2.2"/>
+          <path d="M100 74v22M104 74v22M107 74v22M111 74v22M116 74v22" stroke="var(--tx3)" stroke-width="1.6"/>
+          <path d="M180 70 212 54l32 16v40l-32 16-32-16z" stroke="var(--tx2)" stroke-width="2"/>
+          <path d="M180 70l32 16 32-16M212 86v40" stroke="var(--tx2)" stroke-width="2"/>
+        </svg>
+        Escanea con el celular cada producto que llegó
+      </div>
+    </section>
+    <section class="pane glass" aria-label="Resumen">
+      <div class="suma">
+        <span class="sub">Vas a sumar al inventario</span>
+        <div class="bignum" id="n-piezas">0<small>piezas</small></div>
+        <span class="sub" id="n-kilos"></span>
+      </div>
+      <div class="kv">
+        <span>Productos distintos</span><b id="n-productos">0</b>
+        <span>Te costó en total</span><b id="costo-total">$0</b>
+      </div>
+      <label class="campo"><span>¿De quién llegó? (si quieres)</span><input id="nota" maxlength="120" autocomplete="off" placeholder="Por ejemplo: Distribuidora del centro"></label>
+      <button class="act mt off" id="guardar">Guardar en inventario</button>
+      <button class="vaciar" id="vaciar" hidden>Borrar la lista</button>
+    </section>
+  </main>
+</div>
+<script src="/static/logica.js"></script>
+<script src="/static/venta.js"></script>
+<script src="/static/inventario-logica.js"></script>
+<script src="/static/comun.js"></script>
+<script src="/static/mercancia.js"></script>
+</body>
+</html>

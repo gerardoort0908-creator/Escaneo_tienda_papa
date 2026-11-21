@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vender · Tu tienda</title>
+<link rel="stylesheet" href="/static/base.css">
+<link rel="stylesheet" href="/static/vender.css">
+</head>
+<body>
+<div class="app" id="app" data-state="idle">
+  <!-- 1. Esperando -->
+  <section class="scene s-idle" aria-label="Esperando producto">
+    <div class="c">
+      <div class="demo" aria-hidden="true">
+        <svg viewBox="0 0 300 180" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="70" y="20" width="76" height="140" rx="16" stroke="var(--tx)" stroke-width="2"/>
+          <path d="M98 30h20" stroke="var(--tx)" stroke-width="2"/>
+          <path d="M90 70v-8a4 4 0 0 1 4-4h8M114 58h8a4 4 0 0 1 4 4v8M126 98v8a4 4 0 0 1-4 4h-8M102 110h-8a4 4 0 0 1-4-4v-8" stroke="var(--oro)" stroke-width="2.2"/>
+          <path d="M100 74v22M104 74v22M107 74v22M111 74v22M116 74v22" stroke="var(--tx2)" stroke-width="1.6"/>
+          <path class="dash" d="M152 90h40" stroke="var(--tx3)" stroke-width="2" stroke-dasharray="3 7"/>
+          <rect x="200" y="54" width="44" height="72" rx="10" stroke="var(--tx)" stroke-width="2"/>
+          <path d="M208 80v20M212 80v20M215 80v20M219 80v20M224 80v20M228 80v20M232 80v20M236 80v20" stroke="var(--tx)" stroke-width="1.6"/>
+          <rect class="scanline" x="204" y="89" width="36" height="2" rx="1" fill="var(--oro)" stroke="none"/>
+        </svg>
+      </div>
+      <h1 class="h">Escanea un producto</h1>
+      <p class="sub">Apunta el celular al código de barras</p>
+      <div class="or">o escríbelo</div>
+      <button class="search glass" data-abrir-busqueda>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+        Buscar por nombre o código<kbd>F2</kbd>
+      </button>
+    </div>
+  </section>
+
+  <!-- 2. Vendiendo -->
+  <section class="scene s-sale" aria-label="Venta">
+    <div class="listbox glass">
+      <div class="hd">
+        <b>Esta venta</b>
+        <button class="mini" data-abrir-busqueda>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>Buscar<kbd>F2</kbd>
+        </button>
+      </div>
+      <div class="list" id="lista" role="list"></div>
+    </div>
+    <div class="paybox glass">
+      <div>
+        <div class="lbl">Total a cobrar</div>
+        <div class="num" id="total"></div>
+        <div class="count" id="articulos"></div>
+      </div>
+      <div>
+        <button class="cta" id="cobrar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/></svg>
+          Cobrar<kbd>Enter</kbd>
+        </button>
+        <div class="more">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M8 8v8M11 8v8M14 8v8"/></svg>
+          o sigue escaneando
+        </div>
+        <button class="vaciar" id="vaciar">Cancelar venta</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Cobrando -->
+  <section class="scene s-pay" aria-label="Cobrar">
+    <div class="pay2">
+      <div class="pleft">
+        <h2 class="h">¿Con qué te pagaron?</h2>
+        <p class="sub">Toca cada billete y cada moneda que te dieron.</p>
+        <div class="mrow" id="billetes"></div>
+        <div class="mrow coins" id="monedas"></div>
+        <form class="amt glass" id="otra">
+          <label for="monto">Otra cantidad</label><b>$</b>
+          <input id="monto" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Otra cantidad en pesos">
+          <button type="submit">Agregar</button>
+        </form>
+      </div>
+      <div class="pright glass">
+        <div class="kv2"><span>Total</span><b id="p-total"></b></div>
+        <div class="kv2"><span>Te dieron</span><b id="p-recibido"></b></div>
+        <div class="pieces" id="piezas" aria-label="Lo que te dieron (toca para quitar)"></div>
+        <div class="pstat" id="p-estado" aria-live="polite"></div>
+        <button class="cta" id="terminar">Cobrar</button>
+        <div class="alt2">
+          <button class="chip" id="exacto">Pagó exacto</button>
+          <button class="chip" id="fiar">No pagó: es préstamo</button>
+          <button class="chip" id="volver">Volver a la venta<kbd>Esc</kbd></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Cambio -->
+  <section class="scene s-done" aria-label="Cambio">
+    <div class="c">
+      <div class="check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div>
+      <div class="lbl" id="d-lbl"></div>
+      <div class="num" id="d-cambio"></div>
+      <div class="give glass" id="d-dale"></div>
+      <div class="d-acciones">
+        <button class="next" id="nueva">Nueva venta<kbd>Enter</kbd></button>
+        <button class="deshacer" id="deshacer">Cancelar esta venta</button>
+      </div>
+      <form class="motivos glass" id="motivos" hidden>
+        <span>¿Por qué se cancela?</span>
+        <button type="button" class="chip" data-motivo="Me equivoqué al cobrar">Me equivoqué al cobrar</button>
+        <button type="button" class="chip" data-motivo="El cliente ya no lo quiso">El cliente ya no lo quiso</button>
+        <input id="motivo-otro" maxlength="200" placeholder="Otro motivo" aria-label="Otro motivo">
+        <button type="submit" class="chip">Cancelar venta</button>
+      </form>
+    </div>
+  </section>
+
+</div>
+
+<script src="/static/logica.js"></script>
+<script src="/static/venta.js"></script>
+<script src="/static/comun.js"></script>
+<script src="/static/vender.js"></script>
+</body>
+</html>

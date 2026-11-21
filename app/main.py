@@ -13,9 +13,15 @@ from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Resp
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from tienda import productos
+from tienda.nucleo.base_datos import BaseDatos
+from tienda.nucleo.errores import ErrorTienda
+
 from .certificados import RutasCertificados, sello_en_der
 from .codigos import CodigoInvalido, normalizar
 from .escaneos import Escaneo, Pantallas, RegistroEscaneos, ahora_ms, mensaje_de, registro
+from . import fiado_caja, inventario, reportes_rutas
+from .vender import Celular, crear_rutas, error_de_tienda, producto_json
 
 ESTATICOS = Path(__file__).parent / "static"
 LOCALES = {"127.0.0.1", "::1"}
@@ -28,6 +34,7 @@ class Configuracion:
     certificados: RutasCertificados | None
     puerto_http: int = 8000
     puerto_https: int = 8443
+    ejemplo: bool = False  # datos de práctica, guardados aparte
 
     @property
     def url_celular(self) -> str:
@@ -43,6 +50,8 @@ class Estado:
     config: Configuracion
     escaneos: RegistroEscaneos = field(default_factory=RegistroEscaneos)
     pantallas: Pantallas = field(default_factory=Pantallas)
+    celular: Celular = field(default_factory=Celular)
+    bd: BaseDatos | None = None
 
 
 class EscaneoEntrante(BaseModel):
@@ -67,9 +76,10 @@ def _exigir_llave(request: Request, estado: Estado) -> None:
         raise HTTPException(status_code=401, detail="Llave incorrecta: vuelve a escanear el QR")
 
 
-def crear_app(config: Configuracion) -> FastAPI:
-    app = FastAPI(title="Prueba del escáner", docs_url=None, redoc_url=None, openapi_url=None)
-    estado = Estado(config)
+def crear_app(config: Configuracion, bd: BaseDatos | None = None) -> FastAPI:
+    """Sin base de datos solo funciona la prueba del escáner; con ella, también Vender."""
+    app = FastAPI(title="Tienda", docs_url=None, redoc_url=None, openapi_url=None)
+    estado = Estado(config, bd=bd)
     app.state.estado = estado
 
     @app.middleware("http")
@@ -82,13 +92,56 @@ def crear_app(config: Configuracion) -> FastAPI:
 
     @app.get("/", include_in_schema=False)
     async def inicio(request: Request):
-        destino = "/pantalla" if _es_local(request.client.host if request.client else None) else "/celular"
+        principal = "/vender" if bd is not None else "/pantalla"
+        destino = principal if _es_local(request.client.host if request.client else None) else "/celular"
         return RedirectResponse(destino)
 
     @app.get("/pantalla", include_in_schema=False)
     async def pantalla(request: Request):
         _exigir_local(request)
         return FileResponse(ESTATICOS / "pantalla.html")
+
+    @app.get("/vender", include_in_schema=False)
+    async def vender(request: Request):
+        _exigir_local(request)
+        if bd is None:
+            raise HTTPException(status_code=404)
+        return FileResponse(ESTATICOS / "vender.html")
+
+    @app.get("/productos", include_in_schema=False)
+    async def pagina_productos(request: Request):
+        _exigir_local(request)
+        if bd is None:
+            raise HTTPException(status_code=404)
+        return FileResponse(ESTATICOS / "productos.html")
+
+    @app.get("/mercancia", include_in_schema=False)
+    async def pagina_mercancia(request: Request):
+        _exigir_local(request)
+        if bd is None:
+            raise HTTPException(status_code=404)
+        return FileResponse(ESTATICOS / "mercancia.html")
+
+    @app.get("/fiado", include_in_schema=False)
+    async def pagina_fiado(request: Request):
+        _exigir_local(request)
+        if bd is None:
+            raise HTTPException(status_code=404)
+        return FileResponse(ESTATICOS / "fiado.html")
+
+    @app.get("/caja", include_in_schema=False)
+    async def pagina_caja(request: Request):
+        _exigir_local(request)
+        if bd is None:
+            raise HTTPException(status_code=404)
+        return FileResponse(ESTATICOS / "caja.html")
+
+    @app.get("/reportes", include_in_schema=False)
+    async def pagina_reportes(request: Request):
+        _exigir_local(request)
+        if bd is None:
+            raise HTTPException(status_code=404)
+        return FileResponse(ESTATICOS / "reportes.html")
 
     @app.get("/celular", include_in_schema=False)
     async def celular():
@@ -127,8 +180,10 @@ def crear_app(config: Configuracion) -> FastAPI:
         return Response(salida.getvalue(), media_type="image/svg+xml")
 
     @app.get("/api/hora")
-    async def hora():
-        """El celular la pide varias veces para saber cuánto se desfasa su reloj."""
+    async def hora(request: Request):
+        """El celular la pide cada 2 s: así sabe cuánto se desfasa su reloj y la compu sabe que está conectado."""
+        if not _es_local(request.client.host if request.client else None):
+            estado.celular.saludo()
         return {"ts": ahora_ms()}
 
     @app.post("/api/escaneo")
@@ -144,7 +199,11 @@ def crear_app(config: Configuracion) -> FastAPI:
         nuevo = estado.escaneos.agregar(escaneo)
         if nuevo:
             registro.info("Escaneo %s %s (%s)", escaneo.id, codigo, formato)
-            await estado.pantallas.avisar(mensaje_de(escaneo))
+            mensaje = mensaje_de(escaneo)
+            if bd is not None:
+                producto = productos.por_codigo(bd, codigo)
+                mensaje["producto"] = producto_json(producto) if producto else None
+            await estado.pantallas.avisar(mensaje)
         return {"id": entrada.id, "codigo": codigo, "duplicado": not nuevo, "pantallas": estado.pantallas.cuantas}
 
     @app.websocket("/ws/pantalla")
@@ -165,5 +224,12 @@ def crear_app(config: Configuracion) -> FastAPI:
             pass
         finally:
             estado.pantallas.desconectar(ws)
+
+    if bd is not None:
+        app.add_exception_handler(ErrorTienda, error_de_tienda)
+        app.include_router(crear_rutas(bd, _exigir_local, estado.celular, ejemplo=config.ejemplo))
+        app.include_router(inventario.crear_rutas(bd, _exigir_local))
+        app.include_router(fiado_caja.crear_rutas(bd, _exigir_local))
+        app.include_router(reportes_rutas.crear_rutas(bd, _exigir_local))
 
     return app

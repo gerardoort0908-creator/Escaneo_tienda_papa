@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Productos · Tu tienda</title>
+<link rel="stylesheet" href="/static/base.css">
+<link rel="stylesheet" href="/static/inventario.css">
+</head>
+<body>
+<div class="app" id="app">
+  <main class="view">
+    <section class="pane glass" aria-label="Lista de productos">
+      <div class="encabezado">
+        <h2>Productos</h2>
+        <span class="sub" id="cuantos"></span>
+        <button class="boton" id="nuevo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nuevo producto</button>
+      </div>
+      <label class="searchin chico">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+        <input id="filtro-texto" autocomplete="off" spellcheck="false" placeholder="Buscar por nombre o código" aria-label="Buscar producto">
+      </label>
+      <div class="filtros" id="filtros" role="group" aria-label="Mostrar">
+        <button data-f="todos" class="on">Todos</button>
+        <button data-f="acabando" style="--m:#F2B45C">Se están acabando <i id="n-acabando">0</i></button>
+        <button data-f="acabados" style="--m:#E8806E">Se acabaron <i id="n-acabados">0</i></button>
+        <button data-f="desactivados">Desactivados</button>
+      </div>
+      <div class="rows" id="lista" role="listbox" aria-label="Productos"></div>
+    </section>
+    <section class="pane glass" id="detalle" aria-live="polite" aria-label="Detalle del producto"></section>
+  </main>
+</div>
+<script src="/static/logica.js"></script>
+<script src="/static/venta.js"></script>
+<script src="/static/inventario-logica.js"></script>
+<script src="/static/comun.js"></script>
+<script src="/static/productos.js"></script>
+</body>
+</html>

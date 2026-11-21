@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Préstamos · Tu tienda</title>
+<link rel="stylesheet" href="/static/base.css">
+<link rel="stylesheet" href="/static/inventario.css">
+<link rel="stylesheet" href="/static/cuentas.css">
+</head>
+<body>
+<div class="app" id="app">
+  <main class="view">
+    <section class="pane glass" aria-label="Clientes con préstamo">
+      <div class="encabezado">
+        <h2>Préstamos</h2>
+        <span class="sub" id="resumen"></span>
+        <button class="boton" id="nuevo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Cliente nuevo</button>
+      </div>
+      <div class="te-deben" id="te-deben" hidden>
+        <span>Te deben en total</span>
+        <div class="num" id="total-deben"></div>
+      </div>
+      <label class="searchin chico">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+        <input id="filtro-texto" autocomplete="off" spellcheck="false" placeholder="Buscar cliente" aria-label="Buscar cliente">
+      </label>
+      <div class="filtros" id="filtros" role="group" aria-label="Mostrar">
+        <button data-f="deben" class="on">Los que deben</button>
+        <button data-f="todos">Todos</button>
+      </div>
+      <div class="rows" id="lista" role="listbox" aria-label="Clientes"></div>
+    </section>
+    <section class="pane glass" id="detalle" aria-live="polite" aria-label="Cuenta del cliente"></section>
+  </main>
+</div>
+<script src="/static/logica.js"></script>
+<script src="/static/venta.js"></script>
+<script src="/static/cuentas-logica.js"></script>
+<script src="/static/comun.js"></script>
+<script src="/static/fiado.js"></script>
+</body>
+</html>

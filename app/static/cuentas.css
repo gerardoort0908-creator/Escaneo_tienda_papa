@@ -1,0 +1,85 @@
+/* Fiado y Corte de caja: se apoyan en inventario.css (dos paneles, ficha, filtros). */
+
+.tag.debe { --m: var(--aviso); }
+.tag.ok, .tag.cuadra { --m: var(--acc); }
+.tag.sobra { --m: var(--oro); }
+.tag.falta { --m: var(--mal); }
+.pie { display: grid; gap: 1rem; }
+.tit { margin: .4rem 0 0; font-size: 1.25rem; font-weight: 500; color: var(--tx2); }
+.lbl { font-size: 1.2rem; color: var(--tx2); }
+.monto { display: flex; align-items: center; gap: .3rem; padding: .7rem 1rem; border-radius: .9rem; background: rgba(255, 255, 255, .07); font-size: 1.5rem; color: var(--tx2); }
+.monto:focus-within { box-shadow: inset 0 0 0 1px var(--oro); }
+.monto em { font-style: normal; }
+.monto input { all: unset; width: 9rem; color: var(--tx); font-variant-numeric: tabular-nums; }
+.monto.grande { padding: 1rem 1.4rem; font-size: 2.6rem; font-family: var(--num); font-weight: 700; letter-spacing: -.03em; }
+.monto.grande input { width: 14rem; }
+.para { all: unset; flex: 1; min-width: 12rem; padding: .8rem 1rem; border-radius: .9rem; background: rgba(255, 255, 255, .07); color: var(--tx); font-size: 1.35rem; }
+.para:focus { box-shadow: inset 0 0 0 1px var(--oro); }
+.fila { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+.fila .chip { background: rgba(255, 255, 255, .07); color: var(--tx); font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+
+/* Fiado: el total que deben, a la izquierda */
+.te-deben { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.1rem 1.4rem; border-radius: 1.4rem;
+  background: color-mix(in srgb, var(--aviso) 8%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--aviso) 22%, transparent); font-size: 1.3rem; color: var(--tx2); }
+.te-deben .num { font-size: 3.2rem; color: var(--aviso); }
+
+/* Fiado: cuánto debe y abonar */
+.debe { display: flex; align-items: end; justify-content: space-between; gap: 1rem; padding: 1.4rem 1.6rem; border-radius: 1.6rem; background: rgba(255, 255, 255, .04); }
+.debe .num { font-size: 5.4rem; margin-top: .6rem; }
+.debe.si .num { color: var(--aviso); text-shadow: 0 0 4rem color-mix(in srgb, var(--aviso) 25%, transparent); }
+.debe.no .num { color: var(--acc); }
+.debe .ultimo { font-size: 1.15rem; color: var(--tx3); text-align: right; }
+.abono .monto { flex: 1; }
+.abono .monto input { width: 100%; }
+.abono { display: grid; gap: .9rem; padding: 1.3rem 1.4rem; border-radius: 1.4rem; background: rgba(255, 255, 255, .05); }
+.movs { display: grid; gap: .2rem; overflow-y: auto; scrollbar-width: none; min-height: 6rem; }
+.movs::-webkit-scrollbar { display: none; }
+.mov { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: center; padding: .8rem .9rem; border-radius: 1rem; font-size: 1.35rem; }
+.mov:nth-child(odd) { background: rgba(255, 255, 255, .03); }
+.mov b { display: block; font-weight: 500; }
+.mov small { display: block; font-size: 1.1rem; color: var(--tx2); margin-top: .15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mov .m { font-weight: 600; font-variant-numeric: tabular-nums; }
+.mov.cargo .m { color: var(--aviso); }
+.mov.abono .m { color: var(--acc); }
+.mov.cancelacion { opacity: .6; }
+
+/* Corte de caja */
+.caja-vista { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.abrir { display: grid; gap: 1.4rem; margin-top: 1rem; }
+.abrir .nota { font-size: 1.15rem; color: var(--tx3); }
+.esperado { display: grid; gap: .6rem; padding: 1.6rem 1.8rem; border-radius: 1.6rem; background: rgba(255, 255, 255, .04); }
+.esperado .num { font-size: 7.2rem; text-shadow: var(--tglow); }
+.kv.suma b.resta { color: var(--mal); }
+.chips-info { display: flex; gap: .5rem; flex-wrap: wrap; }
+.chips-info span { font-size: 1.15rem; padding: .45rem 1rem; border-radius: 99rem; background: rgba(255, 255, 255, .06); color: var(--tx2); font-variant-numeric: tabular-nums; }
+.retiro { display: grid; gap: .8rem; padding: 1.3rem 1.4rem; border-radius: 1.4rem; background: rgba(255, 255, 255, .05); }
+
+.conteo { display: grid; grid-template-columns: 1fr 1fr; gap: .2rem 1rem; }
+.den { display: grid; grid-template-columns: 4.6rem auto minmax(0, 1fr); align-items: center; gap: .6rem; padding: .2rem .4rem; border-radius: 1rem; }
+.den .step button { width: 2.4rem; height: 2.4rem; font-size: 1.5rem; }
+.den .v { font-family: var(--num); font-weight: 700; font-size: 1.6rem; letter-spacing: -.02em; color: var(--tx2); font-variant-numeric: tabular-nums; }
+.den.billete .v { color: var(--tx); }
+.den .step input { all: unset; width: 3rem; text-align: center; font-variant-numeric: tabular-nums; font-size: 1.45rem; color: var(--tx); }
+.den .step input::placeholder { color: var(--tx3); }
+.den .sub-den { font-size: 1.15rem; color: var(--tx3); text-align: right; font-variant-numeric: tabular-nums; }
+.den.lleno { background: rgba(255, 255, 255, .04); }
+.den.lleno .sub-den { color: var(--tx2); }
+.contado { display: flex; justify-content: space-between; align-items: end; gap: 1rem; padding: 1rem 1.4rem; border-radius: 1.6rem; background: rgba(255, 255, 255, .05); --m: var(--tx2); }
+.contado .num { font-size: 4.2rem; margin-top: .4rem; }
+.contado .dif { display: grid; justify-items: end; gap: .3rem; }
+.contado .dif b { font-family: var(--num); font-size: 2.8rem; font-weight: 700; letter-spacing: -.03em; color: var(--m); font-variant-numeric: tabular-nums; }
+.contado.cuadra { --m: var(--acc); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 35%, transparent); }
+.contado.sobra { --m: var(--oro); }
+.contado.falta { --m: var(--mal); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mal) 30%, transparent); }
+#der .cta { padding: 1.3rem; font-size: 1.8rem; }
+#der .pie { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
+.cta.seguro { filter: saturate(.6) brightness(1.1); }
+
+.resultado { display: grid; gap: .8rem; padding: 1.6rem 1.8rem; border-radius: 1.6rem; background: rgba(255, 255, 255, .05); --m: var(--acc); }
+.resultado.sobra { --m: var(--oro); }
+.resultado.falta { --m: var(--mal); }
+.resultado .lbl { color: var(--m); font-size: 1.5rem; font-weight: 600; }
+.resultado .num { font-size: 6rem; color: var(--m); }
+.mov.corte small { white-space: normal; }
+#izq, #der { overflow-y: auto; scrollbar-width: none; }
+#izq::-webkit-scrollbar, #der::-webkit-scrollbar { display: none; }
